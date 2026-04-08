@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tracy's Travel Map - Korea 2026</title>
+    <title>Tracy's Travel Map 2026</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -19,7 +19,8 @@
                         'deep-purple': '#7C59D9',
                         'dinner-orange': '#FFB7B2',
                         'inspire-gold': '#D4AF37',
-                        'car-black': '#334155'
+                        'car-black': '#334155',
+                        'bus-blue': '#2563EB'
                     }
                 }
             }
@@ -35,24 +36,22 @@
         .animate-slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: rgba(166, 137, 202, 0.2); z-index: 0; }
-        .concert-card { border-left: 6px solid #7C59D9; }
-        .inspire-card { border-left: 6px solid #D4AF37; }
-        .car-card { border-left: 6px solid #334155; }
-        .dinner-card { border-left: 6px solid #FFB7B2; }
+        .weather-glass { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .hotel-card { background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(243,239,255,0.9) 100%); border: 1px solid white; }
     </style>
 </head>
 <body class="antialiased text-slate-800">
 
     <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl bg-bts-purple">
         
-        <header class="relative w-full h-[25vh] overflow-hidden">
+        <header class="relative w-full h-[22vh] overflow-hidden">
             <div class="w-full h-full bg-gradient-to-br from-bts-purple to-deep-purple flex items-center justify-center text-center">
                 <div>
                     <h1 class="text-white text-3xl font-black tracking-tighter italic">TRACY MAP</h1>
-                    <p class="text-white/70 text-[10px] font-bold tracking-[0.2em] mt-1">SEOUL & INCHEON 2026</p>
+                    <p class="text-white/70 text-[10px] font-bold tracking-[0.2em] mt-1 uppercase">Korea 2026</p>
                 </div>
             </div>
-            <div class="absolute bottom-8 left-4 right-4 glass-header rounded-full p-1.5 flex justify-between items-center z-20 border border-white/30">
+            <div class="absolute bottom-6 left-4 right-4 glass-header rounded-full p-1.5 flex justify-between items-center z-20 border border-white/30">
                 <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
                         :class="['flex-1 py-2.5 flex flex-col items-center transition-all', currentTab === tab.id ? 'tab-active' : 'text-white/90']">
                     <i :data-lucide="tab.icon" class="w-5 h-5"></i>
@@ -61,97 +60,118 @@
             <div class="absolute bottom-0 w-full h-8 bg-soft-purple rounded-t-[40px] z-10"></div>
         </header>
 
-        <main class="flex-1 bg-soft-purple px-4 pb-32 z-10 no-scrollbar overflow-y-auto min-h-[75vh]">
+        <main class="flex-1 bg-soft-purple px-4 pb-32 z-10 no-scrollbar overflow-y-auto min-h-[78vh]">
             
             <div v-if="currentTab === 'itinerary'" class="animate-slide-up">
-                
-                <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-2 mb-6">
-                    <div v-for="day in dates" :key="day.date" 
-                         @click="selectedDate = day.date"
-                         :class="['flex flex-col items-center min-w-[70px] p-3 rounded-2xl transition-all border', selectedDate === day.date ? 'bg-bts-purple text-white border-transparent shadow-lg scale-105' : 'bg-white text-slate-400 border-purple-50']">
+                <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-2 mb-4">
+                    <div v-for="day in dates" :key="day.date" @click="selectedDate = day.date"
+                         :class="['flex flex-col items-center min-w-[65px] p-3 rounded-2xl transition-all border', selectedDate === day.date ? 'bg-bts-purple text-white border-transparent shadow-lg' : 'bg-white text-slate-400 border-purple-50']">
                         <span class="text-[9px] font-black uppercase">{{ day.weekday }}</span>
                         <span class="text-lg font-black">{{ day.dayNum }}</span>
-                        <span class="text-[8px] mt-1 font-bold">{{ day.low }}°/{{ day.high }}°</span>
+                    </div>
+                </div>
+
+                <div class="weather-glass rounded-[32px] p-5 mb-3 shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <i :data-lucide="currentWeather.icon" class="w-5 h-5 text-deep-purple"></i>
+                                <span class="text-sm font-black text-deep-purple">{{ currentWeather.condition }}</span>
+                            </div>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-slate-800">{{ currentWeather.high }}°</span>
+                                <span class="text-sm font-bold text-slate-400">/ {{ currentWeather.low }}°</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Feels Like</p>
+                            <span class="text-lg font-black text-deep-purple">{{ currentWeather.feelsLike }}°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hotel-card rounded-[24px] p-4 mb-8 shadow-sm flex items-center gap-4">
+                    <div class="bg-white p-3 rounded-2xl shadow-inner text-bts-purple">
+                        <i data-lucide="building" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-[9px] font-black text-bts-purple/60 uppercase tracking-widest">Tonight's Accommodation</p>
+                        <h3 class="text-sm font-black text-slate-800">{{ currentHotel.name }}</h3>
+                        <div class="flex items-start gap-1 mt-1">
+                            <i v-if="currentHotel.note.includes('20,000')" data-lucide="alert-circle" class="w-3 h-3 text-red-500 mt-0.5"></i>
+                            <p :class="['text-[10px] leading-tight font-medium', currentHotel.note.includes('20,000') ? 'text-red-600' : 'text-slate-400']">
+                                {{ currentHotel.note }}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <div class="relative pl-14 pr-2 space-y-6">
                     <div class="timeline-line"></div>
-                    
                     <div v-for="item in currentDayItems" :key="item.id" class="relative">
                         <div class="absolute -left-[56px] top-4 w-12 text-right">
                             <span class="text-[11px] font-black text-bts-purple leading-none">{{ item.time }}</span>
                         </div>
-                        <div class="absolute -left-[35px] top-5 w-2.5 h-2.5 rounded-full bg-bts-purple border-2 border-white z-10 shadow-sm"></div>
-
-                        <div v-if="item.category === 'concert'" class="concert-card bg-white rounded-[28px] p-5 shadow-md">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-black text-bts-purple tracking-widest uppercase">Live Event</span>
-                                <i data-lucide="mic-2" class="w-4 h-4 text-bts-purple"></i>
-                            </div>
-                            <h3 class="font-black text-slate-800 text-base leading-tight">{{ item.name }}</h3>
-                            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                                <i data-lucide="map-pin" class="w-3 h-3"></i> 高陽綜合運動競技場
-                            </p>
+                        <div class="absolute -left-[35px] top-5 w-2.5 h-2.5 rounded-full bg-bts-purple border-2 border-white z-10"></div>
+                        
+                        <div v-if="item.category === 'transport'" class="bg-blue-600 rounded-2xl p-4 text-white shadow-lg">
+                            <h3 class="font-black text-sm">機場巴士 6030 號</h3>
+                            <button @click="goToBusInfo" class="w-full mt-2 py-2 bg-white text-blue-600 rounded-xl font-black text-[10px]">查看班次資訊</button>
                         </div>
-
-                        <div v-else-if="item.category === 'inspire'" class="inspire-card bg-white rounded-[28px] p-5 shadow-md">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-black text-inspire-gold tracking-widest uppercase">Special Arena</span>
-                                <i data-lucide="sparkles" class="w-4 h-4 text-inspire-gold"></i>
-                            </div>
-                            <h3 class="font-black text-slate-800 text-base leading-tight">{{ item.name }}</h3>
-                            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                                <i data-lucide="map-pin" class="w-3 h-3"></i> 仁川 Inspire Arena
-                            </p>
-                        </div>
-
-                        <div v-else-if="item.category === 'shuttle'" class="car-card bg-slate-800 rounded-[24px] p-4 text-white shadow-lg active:scale-95 transition-all">
+                        
+                        <div v-else class="bg-white rounded-2xl p-4 shadow-sm border border-purple-50">
                             <div class="flex justify-between items-start">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <i data-lucide="car" class="w-4 h-4 text-blue-400"></i>
-                                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Private Transfer</span>
-                                    </div>
-                                    <h3 class="font-black text-sm">預約包車接送</h3>
-                                    <p class="text-[10px] text-slate-400 mt-1">場地 → 弘大 (Hongdae)</p>
-                                </div>
-                                <div class="bg-blue-500/20 p-2 rounded-xl">
-                                    <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-else-if="item.category === 'dinner'" class="dinner-card bg-white rounded-[28px] p-5 shadow-sm">
-                            <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-black text-dinner-orange tracking-widest uppercase">After Concert</span>
-                                <i data-lucide="utensils" class="w-4 h-4 text-dinner-orange"></i>
-                            </div>
-                            <h3 class="font-black text-slate-800 text-base">{{ item.name }}</h3>
-                            <p class="text-[10px] text-slate-400 mt-1">與 彤彤、Carly 慶祝聚會</p>
-                        </div>
-
-                        <div v-else class="bg-white rounded-[24px] p-4 shadow-sm border border-purple-50 flex items-center gap-4">
-                            <div class="flex-1">
                                 <h3 class="font-bold text-slate-800 text-sm">{{ item.name }}</h3>
-                                <p v-if="item.note" class="text-[10px] text-slate-400 mt-1">{{ item.note }}</p>
+                                <span v-if="item.isImportant" class="bg-red-100 text-red-600 text-[8px] font-black px-1.5 py-0.5 rounded tracking-tighter">CASH REQUIRED</span>
                             </div>
-                            <i v-if="item.category === 'hotel'" data-lucide="home" class="w-5 h-5 text-slate-300"></i>
-                            <i v-if="item.category === 'flight'" data-lucide="plane" class="w-5 h-5 text-bts-purple/30"></i>
+                            <p v-if="item.note" class="text-[10px] text-slate-400 mt-0.5">{{ item.note }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div v-if="currentTab === 'info'" class="py-6 animate-slide-up">
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
-                    <h3 class="text-sm font-black text-bts-purple mb-4 flex items-center gap-2">
-                        <i data-lucide="banknote" class="w-4 h-4"></i> 韓幣換算 HKD
+            <div v-if="currentTab === 'checklist'" class="py-6 animate-slide-up">
+                <div class="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-3 bg-bts-purple rounded-2xl text-white">
+                            <i data-lucide="check-square" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800">每日出門檢查</h3>
+                            <p class="text-xs text-slate-400">Essentials for Concert & Tour</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div v-for="(item, index) in checkItems" :key="index" 
+                             @click="item.checked = !item.checked"
+                             :class="['flex items-center gap-4 p-4 rounded-2xl transition-all cursor-pointer border', item.checked ? 'bg-purple-50 border-purple-100 opacity-60' : 'bg-slate-50 border-transparent']">
+                            <div :class="['w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all', item.checked ? 'bg-bts-purple border-bts-purple' : 'bg-white border-slate-200']">
+                                <i v-if="item.checked" data-lucide="check" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p :class="['text-sm font-bold', item.checked ? 'text-slate-400 line-through' : 'text-slate-700']">{{ item.name }}</p>
+                                <p class="text-[10px] text-slate-400">{{ item.note }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-4 bg-orange-50 rounded-2xl border border-orange-100 flex gap-3">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-orange-400 shrink-0"></i>
+                        <p class="text-[11px] text-orange-700 leading-tight">
+                            <strong>溫馨提醒：</strong> 13-16 號入住 서울 바모스 記得帶備 <strong>20,000 Won 現金</strong>。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="currentTab === 'info'" class="py-6 space-y-6 animate-slide-up">
+                <div id="bus-info-section" class="bg-white rounded-3xl p-6 shadow-sm">
+                    <h3 class="text-sm font-black text-blue-600 mb-4 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4"></i> 6030 巴士班次 (T2 出發)
                     </h3>
-                    <input v-model="krwAmount" type="number" class="w-full bg-soft-purple p-4 rounded-2xl outline-none font-black text-bts-purple text-xl">
-                    <div class="bg-bts-purple text-white p-5 rounded-2xl text-center mt-4">
-                        <span class="text-[10px] font-bold opacity-80 block mb-1">約等於 (HKD)</span>
-                        <span class="text-2xl font-black">${{ (krwAmount * 0.00575).toFixed(2) }}</span>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div v-for="time in busTimes" :key="time" class="bg-slate-50 p-2.5 rounded-xl text-center font-bold text-xs text-slate-500">{{ time }}</div>
                     </div>
                 </div>
             </div>
@@ -159,55 +179,58 @@
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted, watch } = Vue;
         createApp({
             setup() {
                 const currentTab = ref('itinerary');
                 const selectedDate = ref('2026-04-11');
-                const krwAmount = ref(100000);
-                const tabs = [{ id: 'itinerary', icon: 'map-pin' }, { id: 'info', icon: 'info' }, { id: 'shop', icon: 'shopping-basket' }, { id: 'spend', icon: 'wallet' }];
-
-                const dates = [
-                    { weekday: 'FRI', dayNum: '11', date: '2026-04-11', low: 9, high: 18 },
-                    { weekday: 'SAT', dayNum: '12', date: '2026-04-12', low: 10, high: 19 },
-                    { weekday: 'FRI', dayNum: '17', date: '2026-04-17', low: 11, high: 19 },
-                    { weekday: 'SAT', dayNum: '18', date: '2026-04-18', low: 12, high: 21 },
-                    { weekday: 'SUN', dayNum: '19', date: '2026-04-19', low: 13, high: 22 }
+                
+                // 分頁設定，將 spend 換成 checklist
+                const tabs = [
+                    { id: 'itinerary', icon: 'map-pin' },
+                    { id: 'info', icon: 'info' },
+                    { id: 'shop', icon: 'shopping-basket' },
+                    { id: 'checklist', icon: 'check-square' }
                 ];
 
-                const itineraryItems = ref([
-                    // 4/11 BTS Day 1
-                    { id: 1, date: '2026-04-11', name: 'BX3945 航班前往首爾', time: '01:25', category: 'flight', note: 'HKG → ICN' },
-                    { id: 101, date: '2026-04-11', name: 'Glad Yeouido Check-in', time: '09:30', category: 'hotel' },
-                    { id: 2, date: '2026-04-11', name: 'BTS 演唱會 (Day 1)', time: '19:00', category: 'concert' },
-                    { id: 201, date: '2026-04-11', name: '包車回弘大', time: '22:00', category: 'shuttle' },
-                    
-                    // 4/12 BTS Day 2
-                    { id: 3, date: '2026-04-12', name: 'BTS 演唱會 (Day 2)', time: '19:00', category: 'concert' },
-                    { id: 301, date: '2026-04-12', name: '包車回弘大', time: '22:00', category: 'shuttle' },
-                    
-                    // 4/17 Inspire Arena
-                    { id: 4, date: '2026-04-17', name: 'DxS 演唱會 (Day 1)', time: '19:30', category: 'inspire' },
-                    { id: 401, date: '2026-04-17', name: '包車由 Inspire 出發', time: '22:15', category: 'shuttle' },
-                    { id: 5, date: '2026-04-17', name: '與彤彤、Carly 晚餐', time: '22:45', category: 'dinner' },
-                    
-                    // 4/18 Inspire Arena
-                    { id: 6, date: '2026-04-18', name: 'DxS 演唱會 (Day 2)', time: '18:00', category: 'inspire' },
-                    { id: 601, date: '2026-04-18', name: '包車回弘大', time: '21:00', category: 'shuttle' },
-                    
-                    // 4/19 Inspire Arena
-                    { id: 7, date: '2026-04-19', name: 'DxS 演唱會 (Day 3)', time: '17:00', category: 'inspire' },
-                    { id: 701, date: '2026-04-19', name: '包車回弘大', time: '20:00', category: 'shuttle' }
+                const busTimes = ['06:30', '07:15', '07:55', '08:40', '09:20', '10:05', '10:50', '11:40', '12:30'];
+
+                // 檢查清單項目
+                const checkItems = ref([
+                    { name: '護照與身份證', note: 'Passport & ID', checked: false },
+                    { name: '演唱會門票 / 預約確認書', note: 'Tickets / Confirmation', checked: false },
+                    { name: '應援棒 (克拉棒/阿米棒) + 電池', note: 'Lightstick & Spare Batteries', checked: false },
+                    { name: '行動電源 & 充電線', note: 'Powerbank & Cable', checked: false },
+                    { name: 'WOWPASS / 現金 / 信用卡', note: 'Payment Methods', checked: false },
+                    { name: '韓國轉插器 (兩圓頭)', note: 'Travel Adapter', checked: false },
+                    { name: '常用的化妝品與護膚品', note: 'Skincare & Makeup', checked: false }
                 ]);
 
-                const currentDayItems = computed(() => {
-                    return itineraryItems.value
-                        .filter(i => i.date === selectedDate.value)
-                        .sort((a,b) => a.time.localeCompare(b.time));
-                });
+                const dates = ref([
+                    { weekday: 'FRI', dayNum: '11', date: '2026-04-11', low: 9, high: 18, feelsLike: 16, condition: '多雲', icon: 'cloud', hotel: 'Glad Yeouido Hotel', hotelNote: '國會議事堂站 4 號出口' },
+                    { weekday: 'SAT', dayNum: '12', date: '2026-04-12', low: 10, high: 19, feelsLike: 18, condition: '晴朗', icon: 'sun', hotel: 'Glad Yeouido Hotel', hotelNote: '汝矣島區' },
+                    { weekday: 'SUN', dayNum: '13', date: '2026-04-13', low: 11, high: 20, feelsLike: 19, condition: '晴朗', icon: 'sun', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住，需補交 20,000 Won 現金' },
+                    { weekday: 'MON', dayNum: '14', date: '2026-04-14', low: 8, high: 16, feelsLike: 14, condition: '雨天', icon: 'cloud-rain', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住，需補交 20,000 Won 現金' },
+                    { weekday: 'TUE', dayNum: '15', date: '2026-04-15', low: 7, high: 15, feelsLike: 13, condition: '多雲', icon: 'cloud', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住，需補交 20,000 Won 現金' },
+                    { weekday: 'WED', dayNum: '16', date: '2026-04-16', low: 10, high: 18, feelsLike: 17, condition: '晴朗', icon: 'sun', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住，需補交 20,000 Won 現金' },
+                    { weekday: 'THU', dayNum: '17', date: '2026-04-17', low: 11, high: 19, feelsLike: 18, condition: '多雲', icon: 'cloud-sun', hotel: '延南洞 Airbnb', hotelNote: '延南洞弘大區' }
+                ]);
+
+                const itineraryItems = ref([
+                    { id: 1, date: '2026-04-11', name: '抵達仁川 T2', time: '06:10', category: 'flight' },
+                    { id: 100, date: '2026-04-11', name: '機場巴士 6030', time: '07:15', category: 'transport' },
+                    { id: 301, date: '2026-04-13', name: 'Seoul Vamos Hotel Check-in', time: '14:00', category: 'hotel', note: '需補交 20,000 Won 現金', isImportant: true }
+                ]);
+
+                const goToBusInfo = () => { currentTab.value = 'info'; setTimeout(() => document.getElementById('bus-info-section')?.scrollIntoView({ behavior: 'smooth' }), 50); };
+                const currentWeather = computed(() => dates.value.find(d => d.date === selectedDate.value) || dates.value[0]);
+                const currentHotel = computed(() => { const day = dates.value.find(d => d.date === selectedDate.value); return { name: day?.hotel || '未設定', note: day?.hotelNote || '' }; });
+                const currentDayItems = computed(() => itineraryItems.value.filter(i => i.date === selectedDate.value).sort((a,b) => a.time.localeCompare(b.time)));
 
                 onMounted(() => { lucide.createIcons(); });
-                return { currentTab, tabs, dates, selectedDate, currentDayItems, krwAmount };
+                watch([currentTab, selectedDate], () => { setTimeout(() => lucide.createIcons(), 10); });
+
+                return { currentTab, tabs, dates, selectedDate, currentDayItems, currentWeather, currentHotel, busTimes, goToBusInfo, checkItems };
             }
         }).mount('#app');
     </script>
