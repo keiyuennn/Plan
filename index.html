@@ -2,199 +2,184 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tracy's Travel Map 2026</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seoul Trip - Tracy Map</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'bts-purple': '#A689CA', 
-                        'soft-purple': '#F3EFFF',
-                        'deep-purple': '#7C59D9',
-                        'bus-blue': '#2563EB'
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vuedraggable/4.1.0/vuedraggable.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #A689CA; overflow-x: hidden; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .glass-header { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-        .tab-active { background: white !important; color: #7C59D9 !important; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .animate-slide-up { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: rgba(166, 137, 202, 0.2); z-index: 0; }
-        .hotel-card { background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(243,239,255,0.9) 100%); border: 1px solid white; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        :root { --primary-purple: #9D94FF; --bg-purple: #F9F8FF; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-purple); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .banner-mask { border-radius: 35px 35px 0 0; margin-top: -40px; position: relative; background: #ffffff; min-height: 80vh; box-shadow: 0 -10px 30px rgba(157, 148, 255, 0.08); }
+        .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .purple-gradient { background: linear-gradient(135deg, #9D94FF 0%, #B794FF 100%); }
+        .cb-custom { width: 20px; height: 20px; border-radius: 6px; appearance: none; border: 2px solid #E0DEFF; cursor: pointer; position: relative; }
+        .cb-custom:checked { background-color: var(--primary-purple); border-color: var(--primary-purple); }
+        .cb-custom:checked::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: white; font-size: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
     </style>
 </head>
-<body class="antialiased text-slate-800">
+<body class="max-w-md mx-auto shadow-2xl min-h-screen">
 
-    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl bg-bts-purple">
-        
-        <header class="relative w-full h-[22vh] overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-bts-purple to-deep-purple flex items-center justify-center text-center">
-                <div>
-                    <h1 class="text-white text-3xl font-black tracking-tighter italic">TRACY MAP</h1>
-                    <p class="text-white/70 text-[10px] font-bold tracking-[0.2em] mt-1 uppercase">Korea Tour 2026</p>
+<div id="app" class="pb-24">
+    <header class="relative h-[220px] w-full overflow-hidden">
+        <img src="header.png" alt="Travel Banner" class="w-full h-full object-cover">
+        <nav class="absolute bottom-10 right-4 flex space-x-5 p-3 rounded-2xl glass-nav shadow-xl z-10">
+            <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id" 
+                    :class="currentTab === tab.id ? 'text-[#6D63D6] scale-110' : 'text-purple-200'" class="flex flex-col items-center transition-all">
+                <i :class="tab.icon" class="text-lg"></i>
+                <span class="text-[9px] mt-1 font-bold">{{ tab.name }}</span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="banner-mask p-6">
+        <div v-if="currentTab === 'schedule'">
+            <div class="flex gap-4 overflow-x-auto hide-scrollbar mb-8 py-2">
+                <div v-for="d in dates" :key="d.date" @click="activeDate = d.date"
+                     class="flex-shrink-0 w-14 h-20 rounded-2xl flex flex-col items-center justify-center cursor-pointer shadow-sm transition-all"
+                     :class="activeDate === d.date ? 'purple-gradient text-white scale-105' : 'bg-white text-purple-200 border border-purple-50'">
+                    <span class="text-xs font-bold uppercase">{{ d.weekday }}</span>
+                    <span class="text-lg font-black">{{ d.day }}</span>
                 </div>
             </div>
-            <div class="absolute bottom-6 left-4 right-4 glass-header rounded-full p-1.5 flex justify-between items-center z-20 border border-white/30">
-                <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
-                        :class="['flex-1 py-2.5 flex flex-col items-center transition-all', currentTab === tab.id ? 'tab-active' : 'text-white/90']">
-                    <i :data-lucide="tab.icon" class="w-5 h-5"></i>
-                </button>
-            </div>
-            <div class="absolute bottom-0 w-full h-8 bg-soft-purple rounded-t-[40px] z-10"></div>
-        </header>
 
-        <main class="flex-1 bg-soft-purple px-4 pb-32 z-10 no-scrollbar overflow-y-auto min-h-[78vh]">
-            
-            <div v-if="currentTab === 'itinerary'" class="animate-slide-up">
-                
-                <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-2 mb-4">
-                    <div v-for="day in dates" :key="day.date" @click="selectedDate = day.date"
-                         :class="['flex flex-col items-center min-w-[65px] p-3 rounded-2xl transition-all border', selectedDate === day.date ? 'bg-bts-purple text-white border-transparent shadow-lg' : 'bg-white text-slate-400 border-purple-50']">
-                        <span class="text-[9px] font-black uppercase">{{ day.weekday }}</span>
-                        <span class="text-lg font-black">{{ day.dayNum }}</span>
-                    </div>
-                </div>
-
-                <div class="hotel-card rounded-[24px] p-4 mb-8 shadow-sm flex items-center gap-4 border-l-4" 
-                     :style="{ borderLeftColor: currentHotel.note.includes('20,000') ? '#ef4444' : '#A689CA' }">
-                    <div class="bg-white p-3 rounded-2xl shadow-inner text-bts-purple">
-                        <i data-lucide="map-pin" class="w-5 h-5"></i>
-                    </div>
-                    <div class="flex-1 overflow-hidden">
-                        <p class="text-[9px] font-black text-bts-purple/60 uppercase tracking-widest">Tonight's Accommodation</p>
-                        <h3 class="text-sm font-black text-slate-800 truncate">{{ currentHotel.name }}</h3>
-                        <p :class="['text-[10px] leading-tight font-medium mt-0.5', currentHotel.note.includes('20,000') ? 'text-red-500 font-bold' : 'text-slate-400']">
-                            {{ currentHotel.note }}
-                        </p>
-                    </div>
-                    <button @click="openGoogleMaps(currentHotel.name)" class="bg-bts-purple/10 p-2.5 rounded-xl text-bts-purple active:scale-95 transition-transform shrink-0">
-                        <i data-lucide="navigation-2" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <div class="relative pl-14 pr-2 space-y-6">
-                    <div class="timeline-line"></div>
-                    <div v-for="item in currentDayItems" :key="item.id" class="relative">
-                        <div class="absolute -left-[56px] top-4 w-12 text-right">
-                            <span class="text-[11px] font-black text-bts-purple leading-none">{{ item.time }}</span>
-                        </div>
-                        <div class="absolute -left-[35px] top-5 w-2.5 h-2.5 rounded-full bg-bts-purple border-2 border-white z-10 shadow-sm"></div>
-
-                        <div v-if="item.category === 'transport'" class="bg-blue-600 rounded-2xl p-4 text-white shadow-lg">
-                            <h3 class="font-black text-sm">{{ item.name }}</h3>
-                            <button @click="goToBusInfo" class="w-full mt-2 py-2 bg-white text-blue-600 rounded-xl font-black text-[10px]">詳細班次資訊</button>
-                        </div>
-
-                        <div v-else-if="item.isImportant" class="bg-red-50 border border-red-100 rounded-2xl p-4">
-                            <div class="flex justify-between items-center mb-1">
-                                <h3 class="font-black text-red-600 text-sm">{{ item.name }}</h3>
-                                <span class="bg-red-600 text-white text-[8px] px-1.5 py-0.5 rounded font-black">CASH REQ</span>
+            <draggable v-model="dailyPlans" item-key="id" handle=".handle" animation="250">
+                <template #item="{element, index}">
+                    <div class="mb-5" v-if="element.date === activeDate">
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-purple-50 relative">
+                            <div class="handle absolute right-5 top-5 text-purple-100 cursor-move"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[10px] px-2 py-0.5 bg-purple-50 text-[#9D94FF] rounded-lg font-bold border border-purple-100">{{ element.type }}</span>
+                                <span class="text-[10px] text-gray-400">{{ element.time }}</span>
                             </div>
-                            <p class="text-[10px] text-red-400 font-bold">{{ item.note }}</p>
-                        </div>
+                            <h3 class="font-bold text-gray-800 text-lg">{{ element.name }}</h3>
+                            <p class="text-xs text-gray-400 mt-1 mb-4 whitespace-pre-line">{{ element.note }}</p>
+                            
+                            <button v-if="element.isConcert" @click="currentTab = 'info'" class="w-full mb-3 py-2 bg-purple-50 text-[#9D94FF] rounded-xl text-[10px] font-bold border border-purple-100 italic">
+                                <i class="fa-solid fa-clock mr-1"></i> 查看演唱會現場營運指南 (Sound Check/入場)
+                            </button>
+                            <button v-if="element.linkToBus" @click="currentTab = 'info'" class="w-full mb-3 py-2 bg-purple-50 text-[#9D94FF] rounded-xl text-[10px] font-bold border border-purple-100 italic">
+                                <i class="fa-solid fa-bus mr-1"></i> 查看機場巴士 6007 乘車細節
+                            </button>
 
-                        <div v-else :class="[item.category === 'concert' ? 'border-l-4 border-bts-purple shadow-md' : 'border-purple-50', 'bg-white rounded-2xl p-4 shadow-sm border']">
-                            <h3 class="font-bold text-slate-800 text-sm leading-tight">{{ item.name }}</h3>
-                            <p v-if="item.locationName" class="text-[9px] text-bts-purple font-black mt-1 uppercase tracking-tighter italic">{{ item.locationName }}</p>
-                            <p v-if="item.note" class="text-[10px] text-slate-400 mt-0.5">{{ item.note }}</p>
-                        </div>
-                    </div>
-                    <div v-if="currentDayItems.length === 0" class="text-center py-10 text-slate-300 text-xs italic">
-                        今日暫無具體行程
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="currentTab === 'checklist'" class="py-6 animate-slide-up">
-                <div class="bg-white rounded-[32px] p-6 shadow-sm">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="p-3 bg-bts-purple rounded-2xl text-white"><i data-lucide="check-square" class="w-6 h-6"></i></div>
-                        <div>
-                            <h3 class="text-lg font-black text-slate-800">每日出門檢查</h3>
-                            <p class="text-xs text-slate-400">Essentials for Tracy</p>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <div v-for="(item, index) in checkItems" :key="index" @click="item.checked = !item.checked"
-                             :class="['flex items-center gap-4 p-4 rounded-2xl transition-all cursor-pointer', item.checked ? 'bg-purple-50 opacity-60' : 'bg-slate-50']">
-                            <div :class="['w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all', item.checked ? 'bg-bts-purple border-bts-purple' : 'bg-white border-slate-200']">
-                                <i v-if="item.checked" data-lucide="check" class="w-4 h-4 text-white"></i>
+                            <div class="flex gap-3">
+                                <a :href="element.mapUrl" target="_blank"
+                                   class="flex-1 py-3 purple-gradient text-white rounded-2xl text-xs font-bold shadow-md text-center">
+                                   <i class="fa-solid fa-location-arrow mr-2"></i>Google 地圖
+                                </a>
+                                <button class="w-12 h-12 flex items-center justify-center bg-gray-50 text-gray-300 rounded-2xl">
+                                    <i class="fa-solid fa-pen text-sm"></i>
+                                </button>
                             </div>
-                            <div class="flex-1 text-sm font-bold" :class="item.checked ? 'text-slate-400 line-through' : 'text-slate-700'">{{ item.name }}</div>
                         </div>
                     </div>
+                </template>
+            </draggable>
+        </div>
+
+        <div v-if="currentTab === 'info'" class="space-y-6">
+            <div class="p-6 bg-white rounded-3xl shadow-sm border border-purple-50">
+                <h3 class="font-bold text-[#6D63D6] mb-4 text-sm"><i class="fa-solid fa-star mr-2"></i>現場運營指南</h3>
+                <img src="concert_info.png" alt="Concert Times" class="w-full rounded-2xl mb-4 border border-purple-100">
+                <div class="bg-purple-50 p-4 rounded-2xl text-[11px] text-gray-600 space-y-1">
+                    <p>• 票務處: 11:00 AM - 07:30 PM</p>
+                    <p>• Sound Check 入場: 02:10 PM</p>
+                    <p>• 一般入場: 04:00 PM</p>
                 </div>
             </div>
 
-            <div v-if="currentTab === 'info'" class="py-6 space-y-6 animate-slide-up">
-                <div id="bus-info-section" class="bg-white rounded-3xl p-6 shadow-sm">
-                    <h3 class="text-sm font-black text-blue-600 mb-4 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4"></i> 6030 巴士班次 (T2 出發)</h3>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div v-for="time in busTimes" :key="time" class="bg-slate-50 p-2.5 rounded-xl text-center font-bold text-xs text-slate-500">{{ time }}</div>
-                    </div>
+            <div class="p-6 bg-white rounded-3xl shadow-sm border border-purple-50">
+                <h3 class="font-bold text-[#6D63D6] mb-4 text-sm"><i class="fa-solid fa-bus-simple mr-2"></i>機場巴士 6007 (往 GLAD 酒店)</h3>
+                <div class="text-[11px] text-gray-500 mb-4">
+                    <p><strong>搭乘地點：</strong>T2 地下 1 樓 27 號月台</p>
+                    <p><strong>下車站：</strong>國會議事堂 (GLAD Hotel)</p>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-[#6D63D6]">
+                    <div class="bg-purple-50 py-1 rounded-lg">06:15</div>
+                    <div class="bg-purple-50 py-1 rounded-lg">07:05</div>
+                    <div class="bg-purple-50 py-1 rounded-lg">07:55</div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <script>
-        const { createApp, ref, computed, onMounted, watch } = Vue;
-        createApp({
-            setup() {
-                const currentTab = ref('itinerary');
-                const selectedDate = ref('2026-04-11');
-                const tabs = [{ id: 'itinerary', icon: 'map-pin' }, { id: 'info', icon: 'info' }, { id: 'checklist', icon: 'check-square' }];
-                const busTimes = ['06:30', '07:15', '07:55', '08:40', '09:20', '10:05', '10:50', '11:40', '12:30'];
-                const checkItems = ref([{ name: '護照', checked: false }, { name: '演唱會門票', checked: false }, { name: '應援棒+電池', checked: false }, { name: '行動電源', checked: false }, { name: 'WOWPASS/信用卡', checked: false }]);
+            <div class="p-6 bg-white rounded-3xl shadow-sm border border-purple-50 text-center">
+                <h3 class="font-bold text-[#6D63D6] mb-4 text-sm">KRW ⇌ HKD 估算</h3>
+                <input type="number" v-model="krwInput" class="w-full p-4 bg-purple-50 rounded-2xl text-xl font-bold text-center focus:outline-none">
+                <p class="mt-2 text-2xl font-black text-purple-600">$ {{ (krwInput / 170).toFixed(1) }}</p>
+            </div>
+        </div>
 
-                const dates = ref([
-                    { weekday: 'FRI', dayNum: '11', date: '2026-04-11', hotel: 'Glad Yeouido Hotel', hotelNote: '國會議事堂站 4 號出口' },
-                    { weekday: 'SAT', dayNum: '12', date: '2026-04-12', hotel: 'Glad Yeouido Hotel', hotelNote: '汝矣島' },
-                    { weekday: 'SUN', dayNum: '13', date: '2026-04-13', hotel: 'Seoul Vamos Hotel', hotelNote: '需補交 20,000 Won 現金' },
-                    { weekday: 'MON', dayNum: '14', date: '2026-04-14', hotel: 'Seoul Vamos Hotel', hotelNote: '新村/弘大區' },
-                    { weekday: 'TUE', dayNum: '15', date: '2026-04-15', hotel: 'Seoul Vamos Hotel', hotelNote: '新村/弘大區' },
-                    { weekday: 'WED', dayNum: '16', date: '2026-04-16', hotel: 'Seoul Vamos Hotel', hotelNote: '最後一晚 Vamos' },
-                    { weekday: 'THU', dayNum: '17', date: '2026-04-17', hotel: '延南洞 Airbnb', hotelNote: '弘大延南洞區' },
-                    { weekday: 'FRI', dayNum: '18', date: '2026-04-18', hotel: '延南洞 Airbnb', hotelNote: '延南洞' },
-                    { weekday: 'SAT', dayNum: '19', date: '2026-04-19', hotel: '延南洞 Airbnb', hotelNote: '演唱會最後一天' },
-                    { weekday: 'SUN', dayNum: '20', date: '2026-04-20', hotel: 'Home', hotelNote: '返程日' }
-                ]);
+        <div v-if="currentTab === 'checklist'" class="space-y-4">
+            <h2 class="text-xl font-bold text-gray-800 mb-2">必備清單</h2>
+            <div v-for="item in checklist" :key="item.id" @click="item.done = !item.done"
+                 class="flex items-center p-4 bg-white rounded-2xl border border-purple-50 shadow-sm transition-all cursor-pointer">
+                <input type="checkbox" v-model="item.done" @click.stop class="cb-custom mr-4">
+                <p class="text-sm font-bold flex-1" :class="item.done ? 'text-gray-300 line-through' : 'text-gray-700'">{{ item.text }}</p>
+                <i :class="item.icon" class="text-purple-100"></i>
+            </div>
+        </div>
+    </main>
+</div>
 
-                const itineraryItems = ref([
-                    { id: 1, date: '2026-04-11', name: '抵達仁川 T2', time: '06:10', category: 'flight' },
-                    { id: 2, date: '2026-04-11', name: '機場巴士 6030', time: '07:15', category: 'transport' },
-                    { id: 3, date: '2026-04-11', name: 'BTS 演唱會 (Day 1)', time: '19:00', category: 'concert', locationName: '高陽競技場' },
-                    { id: 4, date: '2026-04-12', name: 'BTS 演唱會 (Day 2)', time: '19:00', category: 'concert', locationName: '高陽競技場' },
-                    { id: 5, date: '2026-04-13', name: '換宿：Vamos Hotel', time: '14:00', category: 'hotel', note: '需補交 20,000 Won 現金', isImportant: true },
-                    { id: 6, date: '2026-04-17', name: 'Inspire 演唱會 (Day 1)', time: '19:30', category: 'concert', locationName: 'Inspire Arena' },
-                    { id: 7, date: '2026-04-18', name: 'Inspire 演唱會 (Day 2)', time: '19:30', category: 'concert', locationName: 'Inspire Arena' },
-                    { id: 8, date: '2026-04-19', name: 'Inspire 演唱會 (Day 3)', time: '19:30', category: 'concert', locationName: 'Inspire Arena' }
-                ]);
+<script>
+    const { createApp, ref } = Vue;
+    createApp({
+        setup() {
+            const currentTab = ref('schedule');
+            const activeDate = ref('2026-04-11');
+            const krwInput = ref(50000);
 
-                const openGoogleMaps = (name) => { if (name !== 'Home') window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`, '_blank'); };
-                const goToBusInfo = () => { currentTab.value = 'info'; setTimeout(() => document.getElementById('bus-info-section')?.scrollIntoView({ behavior: 'smooth' }), 50); };
-                const currentHotel = computed(() => { const day = dates.value.find(d => d.date === selectedDate.value); return { name: day?.hotel || 'Home', note: day?.hotelNote || '' }; });
-                const currentDayItems = computed(() => itineraryItems.value.filter(i => i.date === selectedDate.value).sort((a,b) => a.time.localeCompare(b.time)));
+            const tabs = [
+                { id: 'schedule', name: '行程表', icon: 'fa-solid fa-calendar-day' },
+                { id: 'info', name: '資訊', icon: 'fa-solid fa-circle-info' },
+                { id: 'checklist', name: '清單', icon: 'fa-solid fa-list-check' }
+            ];
 
-                onMounted(() => { lucide.createIcons(); });
-                watch([currentTab, selectedDate], () => { setTimeout(() => lucide.createIcons(), 10); });
+            const dates = ref([
+                { weekday: 'Sat', day: '11', date: '2026-04-11' }, { weekday: 'Sun', day: '12', date: '2026-04-12' },
+                { weekday: 'Mon', day: '13', date: '2026-04-13' }, { weekday: 'Tue', day: '14', date: '2026-04-14' },
+                { weekday: 'Wed', day: '15', date: '2026-04-15' }, { weekday: 'Thu', day: '16', date: '2026-04-16' },
+                { weekday: 'Fri', day: '17', date: '2026-04-17' }, { weekday: 'Sat', day: '18', date: '2026-04-18' },
+                { weekday: 'Sun', day: '19', date: '2026-04-19' }, { weekday: 'Mon', day: '20', date: '2026-04-20' }
+            ]);
 
-                return { currentTab, tabs, dates, selectedDate, currentDayItems, currentHotel, busTimes, goToBusInfo, checkItems, openGoogleMaps };
-            }
-        }).mount('#app');
-    </script>
+            const dailyPlans = ref([
+                // 4/11
+                { id: 1, date: '2026-04-11', type: '航班', name: '抵達首爾 BX3945', time: '06:25', note: '仁川機場 T2', mapUrl: 'https://maps.app.goo.gl/3fC6t5VjC5fC6t5Vj' },
+                { id: 2, date: '2026-04-11', type: '交通', name: '前往汝矣島 GLAD 酒店', time: '07:30', note: '搭乘機場巴士 6007', linkToBus: true, mapUrl: 'https://maps.app.goo.gl/3pWpXNnPrhXj1tXF8' },
+                { id: 3, date: '2026-04-11', type: '活動', name: 'BTS WORLD TOUR IN GOYANG', time: '19:00', note: '高陽綜合運動場', isConcert: true, mapUrl: 'https://maps.app.goo.gl/uXmHn3H3H3H3H3H3' },
+                { id: 4, date: '2026-04-11', type: '住宿', name: 'Glad 汝矣島 (Check-in)', time: '15:00', note: 'GLAD Yeouido', mapUrl: 'https://maps.app.goo.gl/3pWpXNnPrhXj1tXF8' },
+
+                // 4/12
+                { id: 5, date: '2026-04-12', type: '活動', name: 'BTS WORLD TOUR IN GOYANG', time: '19:00', isConcert: true, mapUrl: 'https://maps.app.goo.gl/uXmHn3H3H3H3H3H3' },
+                { id: 6, date: '2026-04-12', type: '住宿', name: 'Glad 汝矣島', time: 'All Day', mapUrl: 'https://maps.app.goo.gl/3pWpXNnPrhXj1tXF8' },
+
+                // 4/13 - 4/16 서울 바모스 호텔
+                { id: 7, date: '2026-04-13', type: '住宿', name: '首爾 Vamos 飯店 (Check-in)', time: '15:00', note: '서울 바모스 호텔', mapUrl: 'https://maps.app.goo.gl/uP94QAnMndvHreid6' },
+                { id: 8, date: '2026-04-14', type: '住宿', name: '首爾 Vamos 飯店', time: 'All Day', mapUrl: 'https://maps.app.goo.gl/uP94QAnMndvHreid6' },
+                { id: 9, date: '2026-04-15', type: '住宿', name: '首爾 Vamos 飯店', time: 'All Day', mapUrl: 'https://maps.app.goo.gl/uP94QAnMndvHreid6' },
+
+                // 4/16 - 4/20 Airbnb
+                { id: 10, date: '2026-04-16', type: '住宿', name: '弘大 Airbnb (Check-in)', time: '16:00', note: '서울시 마포구 연남로1길 14-9\n2層 201號', mapUrl: 'https://www.google.com/maps/search/?api=1&query=14-9+Yeonnam-ro+1-gil+Mapo-gu+Seoul' },
+                { id: 11, date: '2026-04-17', type: '活動', name: 'DXS [SERENADE] ON STAGE', time: '19:00', note: 'INSPIRE ARENA', mapUrl: 'https://maps.app.goo.gl/vXmHn3H3H3H3H3H4' },
+                { id: 12, date: '2026-04-18', type: '活動', name: 'DXS [SERENADE] ON STAGE', time: '18:00', note: 'INSPIRE ARENA', mapUrl: 'https://maps.app.goo.gl/vXmHn3H3H3H3H3H4' },
+                { id: 13, date: '2026-04-19', type: '活動', name: 'DXS [SERENADE] ON STAGE', time: '17:00', note: 'INSPIRE ARENA', mapUrl: 'https://maps.app.goo.gl/vXmHn3H3H3H3H3H4' },
+                { id: 14, date: '2026-04-20', type: '航班', name: '返程香港 BX3935', time: '21:30', note: '仁川機場 T2', mapUrl: 'https://maps.app.goo.gl/3fC6t5VjC5fC6t5Vj' }
+            ]);
+
+            const checklist = ref([
+                { id: 1, text: '護照 (Passport)', icon: 'fa-solid fa-passport', done: false },
+                { id: 2, text: '韓國網卡 / Wi-Fi 機', icon: 'fa-solid fa-wifi', done: false },
+                { id: 3, text: '轉接頭 & 充電線', icon: 'fa-solid fa-plug', done: false },
+                { id: 4, text: 'WOWPASS 卡', icon: 'fa-solid fa-credit-card', done: false }
+            ]);
+
+            return { currentTab, activeDate, dates, dailyPlans, checklist, krwInput, tabs };
+        }
+    }).component('draggable', window.vuedraggable).mount('#app');
+</script>
 </body>
 </html>
