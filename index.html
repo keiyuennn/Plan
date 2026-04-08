@@ -9,7 +9,6 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -29,244 +28,179 @@
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #A689CA; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .glass-header { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); }
-        .tab-active { background: white; color: #7C59D9; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .drag-ghost { opacity: 0.5; background: #f3efff; }
+        .glass-header { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .tab-active { background: white !important; color: #7C59D9 !important; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .animate-slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     </style>
 </head>
 <body class="antialiased text-slate-800">
 
-    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl">
+    <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl bg-bts-purple">
         
         <header class="relative w-full h-[40vh] overflow-hidden">
-            <img src="header.png" class="w-full h-full object-cover" alt="BTS Header">
-            
-            <div class="absolute bottom-16 right-4 left-4 glass-header rounded-full p-1 flex justify-between items-center z-20">
+            <img src="header.png" class="w-full h-full object-cover" alt="Header">
+            <div class="absolute bottom-16 left-4 right-4 glass-header rounded-full p-1.5 flex justify-between items-center z-20 border border-white/30">
                 <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
-                        :class="['flex-1 py-2 flex flex-col items-center transition-all', currentTab === tab.id ? 'tab-active' : 'text-white']">
+                        :class="['flex-1 py-2.5 flex flex-col items-center transition-all', currentTab === tab.id ? 'tab-active' : 'text-white/90']">
                     <i :data-lucide="tab.icon" class="w-5 h-5"></i>
                 </button>
             </div>
-
             <div class="absolute bottom-0 w-full h-12 bg-soft-purple rounded-t-[40px] z-10"></div>
         </header>
 
-        <main class="flex-1 bg-soft-purple px-5 -mt-1 pb-24 z-10 min-h-[60vh]">
+        <main class="flex-1 bg-soft-purple px-5 -mt-1 pb-32 z-10 min-h-[60vh] no-scrollbar overflow-y-auto">
             
-            <div v-if="currentTab === 'itinerary'">
-                <div class="flex gap-4 overflow-x-auto no-scrollbar py-2 mb-6">
+            <div v-if="currentTab === 'itinerary'" class="animate-slide-up">
+                <div class="flex gap-3 overflow-x-auto no-scrollbar py-3 mb-4">
                     <div v-for="day in dates" :key="day.date" 
                          @click="selectedDate = day.date"
-                         :class="['flex flex-col items-center min-w-[60px] p-3 rounded-2xl transition-all', selectedDate === day.date ? 'bg-bts-purple text-white shadow-lg' : 'bg-white text-slate-400']">
-                        <span class="text-xs font-bold">{{ day.weekday }}</span>
+                         :class="['flex flex-col items-center min-w-[62px] p-3 rounded-2xl transition-all border', selectedDate === day.date ? 'bg-bts-purple text-white border-transparent shadow-md scale-105' : 'bg-white text-slate-400 border-purple-50']">
+                        <span class="text-[12px] font-bold uppercase">{{ day.weekday }}</span>
                         <span class="text-xl font-bold">{{ day.dayNum }}</span>
                     </div>
                 </div>
 
-                <div class="bg-white/60 rounded-2xl p-4 mb-6 flex items-center justify-between border border-white">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="cloud-sun" class="text-orange-400 w-8 h-8"></i>
-                        <div>
-                            <p class="text-lg font-bold">22°C</p>
-                            <p class="text-xs text-slate-500">體感 20°C · 首爾</p>
-                        </div>
-                    </div>
-                    <span class="text-xs text-purple-400 font-medium italic">Sunny Day</span>
+                <div class="mb-6 rounded-3xl overflow-hidden shadow-sm bg-white/50 p-1 border border-white">
+                    <a class="weatherwidget-io" href="https://forecast7.com/zh-tw/37d57126d98/seoul/" data-label_1="SEOUL" data-label_2="7-Day Forecast" data-font="Noto Sans TC" data-icons="Climacons Animated" data-days="7" data-theme="pure" data-basecolor="rgba(255, 255, 255, 0)" data-accent="#A689CA" data-textcolor="#7C59D9" >SEOUL WEATHER</a>
                 </div>
 
                 <div id="itinerary-list" class="space-y-4">
-                    <div v-for="(item, index) in currentDayItems" :key="item.id" :data-id="item.id">
-                        
-                        <div v-if="index > 0" class="flex items-center gap-2 my-2 ml-10 text-slate-400 text-xs italic">
-                            <i :data-lucide="item.transportIcon" class="w-3 h-3"></i>
-                            <span>{{ item.travelTime }} ({{ item.transportType }})</span>
+                    <div v-for="(item, index) in currentDayItems" :key="item.id">
+                        <div v-if="item.category === 'flight'" class="bg-indigo-900 text-white rounded-[32px] p-6 mb-4 shadow-lg border border-white/10">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-[10px] font-bold tracking-widest bg-white/20 px-2 py-0.5 rounded">{{ item.name }}</span>
+                                <i data-lucide="plane" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div class="text-center"><h4 class="text-2xl font-black italic">HKG</h4><p class="text-[10px] opacity-60">01:25 AM</p></div>
+                                <div class="flex-1 flex flex-col items-center px-4">
+                                    <span class="text-[9px] mb-1 italic opacity-40">~4h 00m</span>
+                                    <div class="w-full h-[1px] bg-white/20 relative"><div class="absolute right-0 -top-1 w-1.5 h-1.5 bg-white rounded-full"></div></div>
+                                </div>
+                                <div class="text-center"><h4 class="text-2xl font-black italic">ICN</h4><p class="text-[10px] opacity-60">06:25 AM (T2)</p></div>
+                            </div>
                         </div>
 
-                        <div class="bg-white rounded-3xl p-5 shadow-sm border border-purple-50 flex items-start gap-4 active:scale-95 transition-transform" @click="openEdit(item)">
-                            <div class="bg-soft-purple p-3 rounded-2xl text-bts-purple">
+                        <div v-else class="bg-white rounded-[28px] p-5 shadow-sm border border-purple-50 flex items-start gap-4 active:scale-95 transition-all">
+                            <div class="bg-soft-purple p-3 rounded-2xl text-bts-purple h-fit">
                                 <i :data-lucide="getCategoryIcon(item.category)"></i>
                             </div>
                             <div class="flex-1">
-                                <h3 class="font-bold text-slate-800 text-lg">{{ item.name }}</h3>
-                                <div class="grid grid-cols-2 gap-1 mt-2">
-                                    <p v-if="item.time" class="text-xs text-slate-500 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> {{ item.time }}</p>
-                                    <p v-if="item.price" class="text-xs text-slate-500 flex items-center gap-1"><i data-lucide="ticket" class="w-3 h-3"></i> {{ item.price }}</p>
+                                <h3 class="font-bold text-slate-800">{{ item.name }}</h3>
+                                <div class="flex gap-3 mt-1.5 text-[11px] text-slate-500">
+                                    <span v-if="item.time" class="flex items-center gap-1 font-medium"><i data-lucide="clock" class="w-3 h-3 text-bts-purple"></i> {{ item.time }}</span>
                                 </div>
-                                <p class="text-xs text-purple-400 mt-2 line-clamp-1 border-t pt-2 border-slate-50">{{ item.note }}</p>
+                                <p v-if="item.note" class="text-[11px] text-slate-400 mt-2 italic border-t border-slate-50 pt-2">{{ item.note }}</p>
                             </div>
-                            <button @click.stop="openNav(item.address)" class="text-bts-purple p-2 hover:bg-soft-purple rounded-full">
-                                <i data-lucide="navigation"></i>
+                            <button @click="openNav(item.address)" class="bg-bts-purple text-white p-2.5 rounded-xl shadow-lg shadow-purple-100">
+                                <i data-lucide="navigation" class="w-5 h-5"></i>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <button @click="showAddModal = true" class="fixed bottom-28 right-6 bg-bts-purple text-white p-5 rounded-full shadow-2xl z-50 animate-bounce">
-                    <i data-lucide="plus" class="w-6 h-6"></i>
-                </button>
+                <button @click="showAddModal = true" class="fixed bottom-10 right-6 bg-bts-purple text-white p-5 rounded-full shadow-2xl z-50"><i data-lucide="plus" class="w-7 h-7"></i></button>
             </div>
 
-            <div v-if="currentTab === 'info'" class="py-4 space-y-6">
+            <div v-if="currentTab === 'info'" class="py-6 space-y-6 animate-slide-up">
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="refresh-cw" class="text-bts-purple"></i> 匯率換算</h2>
+                    <h3 class="text-sm font-bold text-bts-purple mb-4 flex items-center gap-2"><i data-lucide="banknote" class="w-4 h-4"></i> KRW 換算 HKD</h3>
                     <div class="flex items-center gap-4">
-                        <input v-model="currencyAmount" type="number" class="w-full bg-soft-purple p-3 rounded-xl outline-none" placeholder="輸入日幣 (JPY)">
-                        <i data-lucide="arrow-right" class="text-slate-300"></i>
-                        <div class="w-full bg-bts-purple text-white p-3 rounded-xl font-bold">
-                            {{ (currencyAmount * 0.052).toFixed(2) }} HKD
+                        <div class="flex-1">
+                            <input v-model="krwAmount" type="number" class="w-full bg-soft-purple p-4 rounded-2xl outline-none font-bold text-bts-purple" placeholder="KRW">
+                        </div>
+                        <i data-lucide="arrow-right-left" class="text-slate-300"></i>
+                        <div class="flex-1 text-center bg-bts-purple text-white p-4 rounded-2xl font-bold">
+                            ${{ (krwAmount * 0.00575).toFixed(2) }}
                         </div>
                     </div>
                 </div>
-                
-                <div class="bg-indigo-900 text-white rounded-3xl p-6 relative overflow-hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-xs opacity-60">CX 520 · 2026.04.28</span>
-                        <i data-lucide="plane-takeoff" class="w-5 h-5"></i>
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
+                    <h3 class="text-sm font-bold text-bts-purple mb-4 flex items-center gap-2"><i data-lucide="bus" class="w-4 h-4"></i> 6030 機場巴士 (T2)</h3>
+                    <div class="text-[11px] space-y-2 text-slate-600 bg-soft-purple p-4 rounded-2xl">
+                        <p><strong>位置：</strong>T2 地下一樓 25號站台</p>
+                        <p><strong>首班：</strong>06:30 | <strong>末班：</strong>22:25</p>
+                        <p class="border-t border-purple-200 pt-2"><strong>班次預覽：</strong>06:30, 07:15, 08:00, 08:45, 09:30</p>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h4 class="text-3xl font-bold">HKG</h4>
-                            <p class="text-xs opacity-60">15:30</p>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center px-4">
-                            <span class="text-[10px] mb-1">3h 40m</span>
-                            <div class="w-full h-[1px] bg-white/30 relative">
-                                <div class="absolute -top-1 left-1/2 -translate-x-1/2 bg-indigo-900 px-1"><i data-lucide="plane" class="w-3 h-3"></i></div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <h4 class="text-3xl font-bold">ICN</h4>
-                            <p class="text-xs opacity-60">20:10</p>
-                        </div>
-                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
+                    <h3 class="text-sm font-bold text-bts-purple mb-4">GLAD Yeouido Seoul</h3>
+                    <p class="text-xs text-slate-500 mb-4 leading-relaxed">16 Uisadang-daero, Yeongdeungpo-gu, Seoul<br>地鐵 9 號線 國會議事堂站 4 號出口</p>
+                    <button @click="openNav('GLAD Hotel Yeouido Seoul')" class="w-full py-3 bg-bts-purple text-white rounded-xl font-bold">導航至飯店</button>
                 </div>
             </div>
 
-            <div v-if="currentTab === 'spend'" class="py-4">
-                <div class="bg-bts-purple text-white rounded-3xl p-8 mb-6 text-center shadow-lg">
-                    <p class="text-sm opacity-80">總花費估算</p>
-                    <h2 class="text-4xl font-bold mt-2">¥ 128,400</h2>
-                    <p class="text-xs mt-2">≈ HKD 6,676</p>
+            <div v-if="currentTab === 'spend'" class="py-6 animate-slide-up">
+                <div class="flex justify-between items-center mb-6 px-2">
+                    <h3 class="font-bold text-slate-800">花費明細 (KRW)</h3>
+                </div>
+                <div class="space-y-3">
+                    <div v-for="s in expenses" :key="s.id" class="bg-white p-5 rounded-[24px] flex justify-between items-center shadow-sm border border-purple-50">
+                        <div class="flex items-center gap-4">
+                            <div class="p-2.5 bg-soft-purple rounded-xl text-bts-purple"><i :data-lucide="getCategoryIcon(s.cat)" class="w-5 h-5"></i></div>
+                            <div><p class="font-bold text-slate-700">{{ s.name }}</p><p class="text-[10px] text-slate-400 mt-0.5">{{ s.date }}</p></div>
+                        </div>
+                        <div class="text-right"><p class="font-bold text-bts-purple">₩{{ s.amt.toLocaleString() }}</p><p class="text-[9px] text-slate-300">≈ HKD {{ (s.amt * 0.00575).toFixed(1) }}</p></div>
+                    </div>
                 </div>
             </div>
 
         </main>
 
         <div v-if="showAddModal" class="fixed inset-0 bg-black/60 z-[100] flex items-end">
-            <div class="bg-white w-full rounded-t-[40px] p-8 animate-slide-up">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold">新增行程</h2>
-                    <button @click="showAddModal = false"><i data-lucide="x"></i></button>
-                </div>
+            <div class="bg-white w-full rounded-t-[40px] p-8 animate-slide-up max-h-[85vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6"><h2 class="text-xl font-bold text-bts-purple">新增行程</h2><button @click="showAddModal = false" class="p-2 bg-slate-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button></div>
                 <div class="space-y-4">
-                    <input v-model="newItem.name" type="text" placeholder="行程名稱" class="w-full bg-soft-purple p-4 rounded-2xl outline-none">
-                    <select v-model="newItem.category" class="w-full bg-soft-purple p-4 rounded-2xl outline-none">
-                        <option value="spot">景點</option>
-                        <option value="food">美食</option>
-                        <option value="hotel">住宿</option>
-                    </select>
-                    <textarea v-model="newItem.note" placeholder="備註..." class="w-full bg-soft-purple p-4 rounded-2xl h-24 outline-none"></textarea>
-                    
-                    <div class="flex gap-4 pt-4">
-                        <button @click="showAddModal = false" class="flex-1 py-4 text-slate-400 font-bold">取消</button>
-                        <button @click="addItem" class="flex-1 py-4 bg-bts-purple text-white rounded-2xl font-bold shadow-lg shadow-purple-200">儲存行程</button>
-                    </div>
+                    <input v-model="newItem.name" type="text" placeholder="項目名稱" class="w-full bg-soft-purple p-4 rounded-2xl outline-none">
+                    <select v-model="newItem.category" class="w-full bg-soft-purple p-4 rounded-2xl outline-none"><option value="spot">景點</option><option value="food">美食</option><option value="hotel">住宿</option><option value="shop">購物</option><option value="flight">航班</option></select>
+                    <button @click="addItem" class="w-full py-4 bg-bts-purple text-white rounded-2xl font-bold shadow-lg">儲存</button>
                 </div>
             </div>
         </div>
-
     </div>
 
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');</script>
     <script>
         const { createApp, ref, computed, onMounted, nextTick } = Vue;
-
         createApp({
             setup() {
                 const currentTab = ref('itinerary');
-                const selectedDate = ref('2026-04-30');
-                const currencyAmount = ref(1000);
+                const selectedDate = ref('2026-04-11');
+                const krwAmount = ref(10000);
                 const showAddModal = ref(false);
-                
-                const tabs = [
-                    { id: 'itinerary', icon: 'map-pin' },
-                    { id: 'info', icon: 'info' },
-                    { id: 'shop', icon: 'shopping-basket' },
-                    { id: 'spend', icon: 'wallet' }
-                ];
+                const tabs = [{ id: 'itinerary', icon: 'map-pin' }, { id: 'info', icon: 'info' }, { id: 'shop', icon: 'shopping-basket' }, { id: 'spend', icon: 'wallet' }];
 
-                const dates = [
-                    { weekday: 'Wed', dayNum: '28', date: '2026-04-28' },
-                    { weekday: 'Thu', dayNum: '29', date: '2026-04-29' },
-                    { weekday: 'Fri', dayNum: '30', date: '2026-04-30' },
-                    { weekday: 'Sat', dayNum: '01', date: '2026-05-01' }
-                ];
+                const dates = Array.from({length: 11}, (_, i) => {
+                    const d = new Date('2026-04-11');
+                    d.setDate(d.getDate() + i);
+                    return { weekday: ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()], dayNum: d.getDate().toString().padStart(2, '0'), date: d.toISOString().split('T')[0] };
+                });
 
                 const itineraryItems = ref([
-                    { id: 1, date: '2026-04-30', name: 'DK 演唱會場地', time: '18:00', category: 'spot', price: '¥15,000', note: '記得帶手燈和應援物', address: 'Seoul Olympic Hall', transportType: '地鐵', transportIcon: 'train', travelTime: '25min' },
-                    { id: 2, date: '2026-04-30', name: '聖水洞 咖啡廳', time: '14:00', category: 'food', price: '¥2,000', note: '這家店 DK 去過！', address: 'Seongsu-dong Cafe', transportType: '步行', transportIcon: 'footprints', travelTime: '10min' }
+                    { id: 1, date: '2026-04-11', name: 'BX3945', time: '01:25', category: 'flight', address: 'Incheon Airport T2', note: '到達韓國 06:25 @ T2' },
+                    { id: 2, date: '2026-04-11', name: '搭 6030 巴士去 GLAD 汝矣島', time: '07:30', category: 'spot', address: 'Incheon Airport T2 B1 25 Platform', note: '車費約 ₩17,000，直達國會議事堂站' },
+                    { id: 3, date: '2026-04-11', name: 'GLAD Yeouido Check-in', time: '09:00', category: 'hotel', address: 'GLAD Hotel Yeouido', note: '先寄放行李再出去玩' }
                 ]);
+                const expenses = ref([{id: 1, name:'機場巴士', amt: 17000, date: '04-11', cat: 'other'}]);
 
-                const currentDayItems = computed(() => {
-                    return itineraryItems.value.filter(item => item.date === selectedDate.value);
-                });
-
+                const currentDayItems = computed(() => itineraryItems.value.filter(i => i.date === selectedDate.value).sort((a,b)=>a.time.localeCompare(b.time)));
                 const newItem = ref({ name: '', category: 'spot', note: '' });
-
-                const addItem = () => {
-                    itineraryItems.value.push({
-                        id: Date.now(),
-                        date: selectedDate.value,
-                        ...newItem.value,
-                        time: '12:00',
-                        transportType: '開車',
-                        transportIcon: 'car',
-                        travelTime: '15min'
-                    });
-                    showAddModal.value = false;
-                    newItem.value = { name: '', category: 'spot', note: '' };
-                    nextTick(() => lucide.createIcons());
-                };
-
-                const getCategoryIcon = (cat) => {
-                    const map = { spot: 'palmtree', food: 'utensils', hotel: 'hotel', flight: 'plane' };
-                    return map[cat] || 'star';
-                };
-
-                const openNav = (addr) => {
-                    window.open(`http://googleusercontent.com/maps.google.com/7{encodeURIComponent(addr)}`);
-                };
-
-                onMounted(() => {
-                    lucide.createIcons();
-                    // 初始化拖曳排序
+                const addItem = () => { itineraryItems.value.push({ id: Date.now(), date: selectedDate.value, ...newItem.value, time: '12:00' }); showAddModal.value = false; nextTick(() => lucide.createIcons()); };
+                const getCategoryIcon = (cat) => ({ spot:'palmtree', food:'utensils', hotel:'hotel', flight:'plane', shop:'shopping-bag' }[cat] || 'star');
+                const openNav = (addr) => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`);
+                
+                onMounted(() => { 
+                    lucide.createIcons(); 
                     const el = document.getElementById('itinerary-list');
-                    if (el) {
-                        Sortable.create(el, {
-                            animation: 150,
-                            ghostClass: 'drag-ghost',
-                            onEnd: (evt) => {
-                                // 這裡實作陣列重新排序邏輯
-                                console.log('已重新排序');
-                            }
-                        });
-                    }
+                    if(el) Sortable.create(el, { animation: 150 });
                 });
-
-                return { 
-                    currentTab, tabs, dates, selectedDate, 
-                    itineraryItems, currentDayItems, getCategoryIcon, 
-                    currencyAmount, openNav, showAddModal, newItem, addItem 
-                };
+                
+                return { currentTab, tabs, dates, selectedDate, itineraryItems, currentDayItems, getCategoryIcon, krwAmount, openNav, showAddModal, newItem, addItem, expenses };
             }
         }).mount('#app');
     </script>
-
-    <style>
-        @keyframes slide-up {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-        .animate-slide-up { animation: slide-up 0.3s ease-out; }
-    </style>
 </body>
 </html>
