@@ -1,53 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracy Map 救急版</title>
+    <title>Tracy Map - Seoul 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background-color: #f9f8ff; color: #333; margin: 0; padding: 20px; }
-        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; }
-        .header { background: #9d94ff; color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; }
-        .time { color: #6d63d6; font-weight: bold; font-size: 0.9em; }
-        .title { font-weight: bold; display: block; margin: 5px 0; }
-        .note { color: #888; font-size: 0.8em; }
-        .info-title { color: #6d63d6; font-weight: bold; border-bottom: 2px solid #9d94ff; padding-bottom: 5px; margin-top: 20px; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
+        :root { --main-purple: #9D94FF; --bg-soft: #F9F8FF; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-soft); margin: 0; color: #4A4A4A; }
+        
+        /* Header & Banner */
+        header { background: #E0DEFF; height: 280px; position: relative; overflow: hidden; }
+        header img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+        
+        .content-area { border-radius: 35px 35px 0 0; margin-top: -30px; position: relative; background: white; min-height: 80vh; z-index: 10; padding: 25px; box-shadow: 0 -10px 20px rgba(157, 148, 255, 0.05); }
+        
+        /* 導覽列 */
+        .nav-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-radius: 25px; display: flex; gap: 20px; padding: 12px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); z-index: 100; border: 1px solid rgba(255,255,255,0.5); width: 85%; max-width: 350px; justify-content: space-around; }
+        .tab-btn { color: #D1C4E9; text-align: center; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active { color: var(--main-purple); transform: scale(1.1); }
+        
+        /* 卡片設計 */
+        .card { background: white; border: 1px solid #F0EEFF; border-radius: 22px; padding: 18px; margin-bottom: 15px; }
+        .concert-card { border: 2px solid var(--main-purple); background: #FAF9FF; }
+        .van-card { border: 1.5px dashed var(--main-purple); background: #F5F3FF; }
+        .tag { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Tracy Map - Seoul</h1>
-        <p>BTS ARIRANG 演唱會資訊</p>
+<header>
+    <img src="header.jpg" onerror="this.style.display='none'">
+</header>
+
+<div class="nav-bar">
+    <div onclick="showTab('schedule')" id="btn-schedule" class="tab-btn active"><i class="fa-solid fa-calendar-day text-xl block"></i>行程</div>
+    <div onclick="showTab('info')" id="btn-info" class="tab-btn"><i class="fa-solid fa-circle-info text-xl block"></i>資訊</div>
+    <div onclick="showTab('shop')" id="btn-shop" class="tab-btn"><i class="fa-solid fa-basket-shopping text-xl block"></i>清單</div>
+</div>
+
+<main class="content-area pb-24">
+    <div id="tab-schedule">
+        <h2 class="text-xl font-bold mb-6 text-gray-800">Trip Schedule</h2>
+        
+        <div class="mb-8">
+            <h3 class="text-sm font-black text-purple-300 mb-3 border-l-4 border-purple-200 pl-2">04.11 SAT</h3>
+            <div class="card">
+                <span class="tag text-purple-400">11:00 AM</span>
+                <p class="font-bold text-sm">票務處 / 服務台開放</p>
+                <p class="text-[11px] text-gray-400 mt-1">地點：南側 (South)</p>
+            </div>
+            <div class="card concert-card">
+                <span class="tag text-[#6D63D6]">07:00 PM</span>
+                <p class="font-bold text-sm">BTS WORLD TOUR [ARIRANG]</p>
+                <p class="text-[11px] text-gray-500 mt-1">Goyang Stadium (SC 入場 14:10)</p>
+            </div>
+            <div class="card van-card">
+                <p class="font-bold text-sm">🚐 包車回弘大</p>
+                <p class="text-[11px] text-gray-400 mt-1">預計 22:15 集合</p>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h3 class="text-sm font-black text-purple-300 mb-3 border-l-4 border-purple-200 pl-2">04.18 SAT</h3>
+            <div class="card concert-card">
+                <span class="tag text-[#6D63D6]">06:00 PM</span>
+                <p class="font-bold text-sm">DXS [SERENADE] D1</p>
+                <p class="text-[11px] text-gray-500 mt-1">Inspire Arena</p>
+            </div>
+            <div class="card van-card">
+                <p class="font-bold text-sm">🚐 包車回弘大</p>
+                <p class="text-[11px] text-gray-400 mt-1">預計 21:15 集合</p>
+            </div>
+        </div>
     </div>
 
-    <h2 class="info-title">📅 行程：4/11 (SAT)</h2>
-    <div class="card">
-        <span class="time">11:00 AM</span>
-        <span class="title">票務處/服務台開放</span>
-        <span class="note">地點：高陽體育場 南側 (South)</span>
-    </div>
-    <div class="card" style="border: 2px solid #6d63d6;">
-        <span class="time">07:00 PM</span>
-        <span class="title">BTS WORLD TOUR [ARIRANG]</span>
-        <span class="note">演出開始</span>
-    </div>
-
-    <h2 class="info-title">💡 現場指南</h2>
-    <div class="card">
-        <span class="title">ARMY ZONE 必備品</span>
-        <ul style="font-size: 0.9em; padding-left: 20px;">
-            <li>身分證原件 (護照)</li>
-            <li>Membership 二維碼</li>
-            <li>當日演出門票</li>
-        </ul>
+    <div id="tab-info" class="hidden">
+        <h2 class="text-xl font-bold mb-6 text-gray-800">Essential Info</h2>
+        <div class="card bg-purple-50 border-none">
+            <p class="text-xs font-bold text-purple-700 mb-3 uppercase tracking-wider">ARMY ZONE 必備清單</p>
+            <ul class="text-[11px] space-y-2 text-gray-600">
+                <li>● 身分證原件 (護照)</li>
+                <li>● Membership 二維碼 (Weverse)</li>
+                <li>● 當日演出實體門票</li>
+            </ul>
+        </div>
+        <div class="card">
+            <p class="text-xs font-bold text-gray-700 mb-2">場地位置指引 (高陽)</p>
+            <p class="text-[11px] text-gray-500">📍 <b>北側 (North):</b> SC/一般手環、ARMY ZONE</p>
+            <p class="text-[11px] text-gray-500">📍 <b>南側 (South):</b> 票務處、SC櫃台、阿米棒</p>
+        </div>
     </div>
 
-    <h2 class="info-title">📍 場地分佈</h2>
-    <div class="card">
-        <p><b>北側 (North):</b> SC手環、一般手環、ARMY ZONE</p>
-        <p><b>南側 (South):</b> 票務處、SC櫃台、阿米棒快速櫃台</p>
+    <div id="tab-shop" class="hidden">
+        <h2 class="text-xl font-bold mb-6 text-gray-800">Shopping List</h2>
+        <div class="card flex justify-between items-center">
+            <span class="text-sm font-medium">Tamburins 護手霜</span>
+            <i class="fa-solid fa-circle-check text-purple-100"></i>
+        </div>
+        <div class="card flex justify-between items-center">
+            <span class="text-sm font-medium">Olive Young 補貨</span>
+            <i class="fa-solid fa-circle-check text-purple-100"></i>
+        </div>
+        <div class="card flex justify-between items-center">
+            <span class="text-sm font-medium">藍瓶咖啡隨行杯</span>
+            <i class="fa-solid fa-circle-check text-purple-100"></i>
+        </div>
     </div>
+</main>
+
+<script>
+    function showTab(tabName) {
+        // 切換內容顯示
+        const tabs = ['schedule', 'info', 'shop'];
+        tabs.forEach(t => {
+            document.getElementById('tab-' + t).classList.add('hidden');
+            document.getElementById('btn-' + t).classList.remove('active');
+        });
+        
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
+        document.getElementById('btn-' + tabName).classList.add('active');
+        
+        // 點擊時輕微震動回饋 (如果設備支援)
+        if (window.navigator.vibrate) window.navigator.vibrate(5);
+    }
+</script>
 
 </body>
 </html>
