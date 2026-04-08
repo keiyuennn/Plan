@@ -17,9 +17,6 @@
                         'bts-purple': '#A689CA', 
                         'soft-purple': '#F3EFFF',
                         'deep-purple': '#7C59D9',
-                        'dinner-orange': '#FFB7B2',
-                        'inspire-gold': '#D4AF37',
-                        'car-black': '#334155',
                         'bus-blue': '#2563EB'
                     }
                 }
@@ -36,7 +33,6 @@
         .animate-slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: rgba(166, 137, 202, 0.2); z-index: 0; }
-        .weather-glass { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.4); }
         .hotel-card { background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(243,239,255,0.9) 100%); border: 1px solid white; }
     </style>
 </head>
@@ -69,25 +65,6 @@
                          :class="['flex flex-col items-center min-w-[65px] p-3 rounded-2xl transition-all border', selectedDate === day.date ? 'bg-bts-purple text-white border-transparent shadow-lg' : 'bg-white text-slate-400 border-purple-50']">
                         <span class="text-[9px] font-black uppercase">{{ day.weekday }}</span>
                         <span class="text-lg font-black">{{ day.dayNum }}</span>
-                    </div>
-                </div>
-
-                <div class="weather-glass rounded-[32px] p-5 mb-3 shadow-sm">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <i :data-lucide="currentWeather.icon" class="w-5 h-5 text-deep-purple"></i>
-                                <span class="text-sm font-black text-deep-purple">{{ currentWeather.condition }}</span>
-                            </div>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-black text-slate-800">{{ currentWeather.high }}°</span>
-                                <span class="text-sm font-bold text-slate-400">/ {{ currentWeather.low }}°</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Feels Like</p>
-                            <span class="text-lg font-black text-deep-purple">{{ currentWeather.feelsLike }}°C</span>
-                        </div>
                     </div>
                 </div>
 
@@ -129,11 +106,14 @@
                             <p class="text-[10px] text-red-400 font-bold">{{ item.note }}</p>
                         </div>
 
-                        <div v-else :class="[item.category === 'concert' ? 'border-l-4 border-bts-purple' : 'border-purple-50', 'bg-white rounded-2xl p-4 shadow-sm border']">
+                        <div v-else :class="[item.category === 'concert' ? 'border-l-4 border-bts-purple shadow-md' : 'border-purple-50', 'bg-white rounded-2xl p-4 shadow-sm border']">
                             <h3 class="font-bold text-slate-800 text-sm leading-tight">{{ item.name }}</h3>
-                            <p v-if="item.locationName" class="text-[9px] text-bts-purple font-black mt-1 uppercase tracking-tighter">{{ item.locationName }}</p>
+                            <p v-if="item.locationName" class="text-[9px] text-bts-purple font-black mt-1 uppercase tracking-tighter italic">{{ item.locationName }}</p>
                             <p v-if="item.note" class="text-[10px] text-slate-400 mt-0.5">{{ item.note }}</p>
                         </div>
+                    </div>
+                    <div v-if="currentDayItems.length === 0" class="text-center py-10 text-slate-300 text-xs italic">
+                        今日暫無具體行程
                     </div>
                 </div>
             </div>
@@ -153,9 +133,7 @@
                             <div :class="['w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all', item.checked ? 'bg-bts-purple border-bts-purple' : 'bg-white border-slate-200']">
                                 <i v-if="item.checked" data-lucide="check" class="w-4 h-4 text-white"></i>
                             </div>
-                            <div class="flex-1">
-                                <p :class="['text-sm font-bold', item.checked ? 'text-slate-400 line-through' : 'text-slate-700']">{{ item.name }}</p>
-                            </div>
+                            <div class="flex-1 text-sm font-bold" :class="item.checked ? 'text-slate-400 line-through' : 'text-slate-700'">{{ item.name }}</div>
                         </div>
                     </div>
                 </div>
@@ -178,20 +156,21 @@
             setup() {
                 const currentTab = ref('itinerary');
                 const selectedDate = ref('2026-04-11');
-                const tabs = [{ id: 'itinerary', icon: 'map-pin' }, { id: 'info', icon: 'info' }, { id: 'shop', icon: 'shopping-basket' }, { id: 'checklist', icon: 'check-square' }];
-
+                const tabs = [{ id: 'itinerary', icon: 'map-pin' }, { id: 'info', icon: 'info' }, { id: 'checklist', icon: 'check-square' }];
                 const busTimes = ['06:30', '07:15', '07:55', '08:40', '09:20', '10:05', '10:50', '11:40', '12:30'];
                 const checkItems = ref([{ name: '護照', checked: false }, { name: '演唱會門票', checked: false }, { name: '應援棒+電池', checked: false }, { name: '行動電源', checked: false }, { name: 'WOWPASS/信用卡', checked: false }]);
 
                 const dates = ref([
-                    { weekday: 'FRI', dayNum: '11', date: '2026-04-11', low: 9, high: 18, feelsLike: 16, condition: '多雲', icon: 'cloud', hotel: 'Glad Yeouido Hotel', hotelNote: '國會議事堂站 4 號出口旁' },
-                    { weekday: 'SAT', dayNum: '12', date: '2026-04-12', low: 10, high: 19, feelsLike: 18, condition: '晴朗', icon: 'sun', hotel: 'Glad Yeouido Hotel', hotelNote: '汝矣島中心區' },
-                    { weekday: 'SUN', dayNum: '13', date: '2026-04-13', low: 11, high: 20, feelsLike: 19, condition: '晴朗', icon: 'sun', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住，需補交 20,000 Won 現金' },
-                    { weekday: 'MON', dayNum: '14', date: '2026-04-14', low: 8, high: 16, feelsLike: 14, condition: '雨天', icon: 'cloud-rain', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住' },
-                    { weekday: 'TUE', dayNum: '15', date: '2026-04-15', low: 7, high: 15, feelsLike: 13, condition: '多雲', icon: 'cloud', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住' },
-                    { weekday: 'WED', dayNum: '16', date: '2026-04-16', low: 10, high: 18, feelsLike: 17, condition: '晴朗', icon: 'sun', hotel: 'Seoul Vamos Hotel', hotelNote: '14:00 入住' },
-                    { weekday: 'THU', dayNum: '17', date: '2026-04-17', low: 11, high: 19, feelsLike: 18, condition: '多雲', icon: 'cloud-sun', hotel: '延南洞 Airbnb', hotelNote: '弘大延南洞區' },
-                    { weekday: 'THU', dayNum: '30', date: '2026-04-30', low: 14, high: 23, feelsLike: 22, condition: '晴朗', icon: 'sun', hotel: 'Home', hotelNote: 'DK Concert Day!' }
+                    { weekday: 'FRI', dayNum: '11', date: '2026-04-11', hotel: 'Glad Yeouido Hotel', hotelNote: '國會議事堂站 4 號出口' },
+                    { weekday: 'SAT', dayNum: '12', date: '2026-04-12', hotel: 'Glad Yeouido Hotel', hotelNote: '汝矣島' },
+                    { weekday: 'SUN', dayNum: '13', date: '2026-04-13', hotel: 'Seoul Vamos Hotel', hotelNote: '需補交 20,000 Won 現金' },
+                    { weekday: 'MON', dayNum: '14', date: '2026-04-14', hotel: 'Seoul Vamos Hotel', hotelNote: '新村/弘大區' },
+                    { weekday: 'TUE', dayNum: '15', date: '2026-04-15', hotel: 'Seoul Vamos Hotel', hotelNote: '新村/弘大區' },
+                    { weekday: 'WED', dayNum: '16', date: '2026-04-16', hotel: 'Seoul Vamos Hotel', hotelNote: '最後一晚 Vamos' },
+                    { weekday: 'THU', dayNum: '17', date: '2026-04-17', hotel: '延南洞 Airbnb', hotelNote: '弘大延南洞區' },
+                    { weekday: 'FRI', dayNum: '18', date: '2026-04-18', hotel: '延南洞 Airbnb', hotelNote: '延南洞' },
+                    { weekday: 'SAT', dayNum: '19', date: '2026-04-19', hotel: '延南洞 Airbnb', hotelNote: '演唱會最後一天' },
+                    { weekday: 'SUN', dayNum: '20', date: '2026-04-20', hotel: 'Home', hotelNote: '返程日' }
                 ]);
 
                 const itineraryItems = ref([
@@ -200,26 +179,20 @@
                     { id: 3, date: '2026-04-11', name: 'BTS 演唱會 (Day 1)', time: '19:00', category: 'concert', locationName: '高陽競技場' },
                     { id: 4, date: '2026-04-12', name: 'BTS 演唱會 (Day 2)', time: '19:00', category: 'concert', locationName: '高陽競技場' },
                     { id: 5, date: '2026-04-13', name: '換宿：Vamos Hotel', time: '14:00', category: 'hotel', note: '需補交 20,000 Won 現金', isImportant: true },
-                    { id: 6, date: '2026-04-17', name: 'DxS 演唱會 (Day 1)', time: '19:30', category: 'concert', locationName: 'Inspire Arena' },
-                    { id: 7, date: '2026-04-30', name: 'Seventeen DK 演唱會', time: '18:00', category: 'concert', locationName: '首爾', note: '記得門票！' }
+                    { id: 6, date: '2026-04-17', name: 'Inspire 演唱會 (Day 1)', time: '19:30', category: 'concert', locationName: 'Inspire Arena' },
+                    { id: 7, date: '2026-04-18', name: 'Inspire 演唱會 (Day 2)', time: '19:30', category: 'concert', locationName: 'Inspire Arena' },
+                    { id: 8, date: '2026-04-19', name: 'Inspire 演唱會 (Day 3)', time: '19:30', category: 'concert', locationName: 'Inspire Arena' }
                 ]);
 
-                // 打開 Google 地圖的函數
-                const openGoogleMaps = (hotelName) => {
-                    if (hotelName === 'Home') return;
-                    const query = encodeURIComponent(hotelName);
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-                };
-
+                const openGoogleMaps = (name) => { if (name !== 'Home') window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`, '_blank'); };
                 const goToBusInfo = () => { currentTab.value = 'info'; setTimeout(() => document.getElementById('bus-info-section')?.scrollIntoView({ behavior: 'smooth' }), 50); };
-                const currentWeather = computed(() => dates.value.find(d => d.date === selectedDate.value) || dates.value[0]);
                 const currentHotel = computed(() => { const day = dates.value.find(d => d.date === selectedDate.value); return { name: day?.hotel || 'Home', note: day?.hotelNote || '' }; });
                 const currentDayItems = computed(() => itineraryItems.value.filter(i => i.date === selectedDate.value).sort((a,b) => a.time.localeCompare(b.time)));
 
                 onMounted(() => { lucide.createIcons(); });
                 watch([currentTab, selectedDate], () => { setTimeout(() => lucide.createIcons(), 10); });
 
-                return { currentTab, tabs, dates, selectedDate, currentDayItems, currentWeather, currentHotel, busTimes, goToBusInfo, checkItems, openGoogleMaps };
+                return { currentTab, tabs, dates, selectedDate, currentDayItems, currentHotel, busTimes, goToBusInfo, checkItems, openGoogleMaps };
             }
         }).mount('#app');
     </script>
