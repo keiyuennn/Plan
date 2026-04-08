@@ -3,131 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracy Map - Seoul 2026</title>
+    <title>Seoul Trip 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
         :root { --main-purple: #9D94FF; --bg-soft: #F9F8FF; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-soft); margin: 0; color: #4A4A4A; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-soft); color: #4A4A4A; margin: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        header { background: #E0DEFF; height: 280px; position: relative; overflow: hidden; }
-        header img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
-        .content-area { border-radius: 35px 35px 0 0; margin-top: -30px; position: relative; background: white; min-height: 80vh; z-index: 10; padding: 25px; }
-        .nav-bar { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-radius: 25px; display: flex; gap: 20px; padding: 12px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); z-index: 100; width: 85%; max-width: 350px; justify-content: space-around; }
+        header { background: #E0DEFF; height: 250px; position: relative; overflow: hidden; }
+        header img { width: 100%; height: 100%; object-fit: cover; }
+        .content-area { border-radius: 35px 35px 0 0; margin-top: -30px; background: white; min-height: 80vh; padding: 25px; position: relative; z-index: 10; }
+        
+        .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 25px; display: flex; width: 85%; max-width: 400px; padding: 12px; justify-content: space-around; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100; }
         .tab-btn { color: #D1C4E9; text-align: center; font-size: 10px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { color: var(--main-purple); }
-        .date-btn { flex-shrink: 0; width: 55px; height: 75px; border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; background: #F8F7FF; color: #D1C4E9; }
-        .date-btn.active { background: var(--main-purple); color: white; box-shadow: 0 5px 15px rgba(157, 148, 255, 0.3); }
-        .card { background: white; border: 1px solid #F0EEFF; border-radius: 22px; padding: 18px; margin-bottom: 15px; }
+
+        .card { background: white; border: 1px solid #F0EEFF; border-radius: 20px; padding: 18px; margin-bottom: 12px; }
         .hotel-card { background: #FFF9F2; border: 1px solid #FFE0B2; }
-        .concert-card { border: 2px solid var(--main-purple); background: #FAF9FF; }
-        .address-link { color: #9D94FF; font-size: 10px; text-decoration: underline; margin-top: 5px; display: block; }
+        .army-card { background: #FAF5FF; border: 1px solid #E9D5FF; }
+        .op-card { background: #F8FAFC; border: 1px solid #E2E8F0; }
+        
+        .address-btn { font-size: 11px; color: #9D94FF; text-decoration: underline; margin-top: 5px; display: block; font-weight: bold; }
+        .date-btn { flex-shrink: 0; width: 50px; height: 65px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F8F7FF; color: #D1C4E9; cursor: pointer; }
+        .date-btn.active { background: var(--main-purple); color: white; }
         .hidden { display: none; }
+        .time-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding: 6px 0; font-size: 11px; }
     </style>
 </head>
 <body>
 
-<header>
-    <img src="header.jpg" onerror="this.style.display='none'">
-</header>
+<header><img src="header.png" onerror="this.src='https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&q=80&w=1000'"></header>
 
 <div class="nav-bar">
-    <div onclick="showMainTab('schedule')" id="mbtn-schedule" class="tab-btn active"><i class="fa-solid fa-calendar-day text-xl block"></i>行程</div>
-    <div onclick="showMainTab('info')" id="mbtn-info" class="tab-btn"><i class="fa-solid fa-circle-info text-xl block"></i>資訊</div>
-    <div onclick="showMainTab('shop')" id="mbtn-shop" class="tab-btn"><i class="fa-solid fa-basket-shopping text-xl block"></i>清單</div>
+    <div onclick="showTab('schedule')" id="b-schedule" class="tab-btn active"><i class="fa-solid fa-calendar-day text-xl block"></i>行程</div>
+    <div onclick="showTab('info')" id="b-info" class="tab-btn"><i class="fa-solid fa-circle-info text-xl block"></i>資訊</div>
+    <div onclick="showTab('shop')" id="b-shop" class="tab-btn"><i class="fa-solid fa-basket-shopping text-xl block"></i>清單</div>
 </div>
 
 <main class="content-area pb-24">
     <div id="tab-schedule">
-        <div class="flex gap-3 overflow-x-auto no-scrollbar mb-8 pb-2">
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2">
             <div onclick="filterDate('0411')" id="d0411" class="date-btn active"><span>11</span><small>SAT</small></div>
             <div onclick="filterDate('0412')" id="d0412" class="date-btn"><span>12</span><small>SUN</small></div>
+            <div onclick="filterDate('0413')" id="d0413" class="date-btn"><span>13</span><small>MON</small></div>
+            <div onclick="filterDate('0417')" id="d0417" class="date-btn"><span>17</span><small>FRI</small></div>
             <div onclick="filterDate('0418')" id="d0418" class="date-btn"><span>18</span><small>SAT</small></div>
             <div onclick="filterDate('0419')" id="d0419" class="date-btn"><span>19</span><small>SUN</small></div>
+            <div onclick="filterDate('0420')" id="d0420" class="date-btn"><span>20</span><small>MON</small></div>
         </div>
 
         <div id="date-0411" class="date-content">
             <div class="card hotel-card">
-                <p class="font-bold text-sm">📍 Glad 汝矣島</p>
-                <a href="https://maps.app.goo.gl/nVP87SOffDURCqy7C3DOje0" target="_blank" class="address-link">16 Uisadang-daero, Yeongdeungpo District, Seoul</a>
+                <p class="font-bold text-sm text-orange-600"><i class="fa-solid fa-bed mr-1"></i> Glad 汝矣島</p>
+                <a href="https://maps.google.com/?cid=17157002227709954818&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ4" target="_blank" class="address-btn">Google Maps</a>
             </div>
-            <div class="card concert-card">
-                <p class="font-bold text-sm text-[#6D63D6]">BTS WORLD TOUR [ARIRANG]</p>
-                <a href="https://maps.app.goo.gl/yWt0kn6FfDURAss82Z_qGe4" target="_blank" class="address-link">Goyang Stadium (高陽體育園區)</a>
-            </div>
-        </div>
-
-        <div id="date-0412" class="date-content hidden">
-             <div class="card hotel-card">
-                <p class="font-bold text-sm">📍 Glad 汝矣島</p>
-                <a href="https://maps.app.goo.gl/nVP87SOffDURCqy7C3DOje0" target="_blank" class="address-link">Open in Google Maps</a>
-            </div>
-            <div class="card concert-card">
-                <p class="font-bold text-sm text-[#6D63D6]">BTS WORLD TOUR [ARIRANG] D2</p>
+            <div class="card" style="background: #F0F9FF;"><p class="text-sm font-bold">06:25 抵達仁川 T2</p></div>
+            <div class="card" style="border-left: 5px solid #9D94FF;">
+                <p class="font-bold text-sm">BTS [ARIRANG] - 19:00</p>
+                <p class="text-[10px] text-gray-400 mt-1">詳情請看「資訊」分頁營運表</p>
             </div>
         </div>
-
-        <div id="date-0418" class="date-content hidden">
-            <div class="card hotel-card">
-                <p class="font-bold text-sm">🏠 延南洞 Airbnb</p>
-                <a href="https://www.google.com/maps/search/?api=1&query=서울시+마포구+연남로1길14-9" target="_blank" class="address-link">서울시 마포구 연남로1길14-9</a>
-            </div>
-            <div class="card concert-card">
-                <p class="font-bold text-sm text-[#6D63D6]">DXS [SERENADE] D1</p>
-                <a href="https://maps.app.goo.gl/eYgyHHSRezUR_2jZaVUIaBE" target="_blank" class="address-link">Inspire Arena Incheon</a>
-            </div>
         </div>
-
-        <div id="date-0419" class="date-content hidden">
-            <div class="card hotel-card">
-                <p class="font-bold text-sm">🏠 延南洞 Airbnb</p>
-            </div>
-            <div class="card concert-card">
-                <p class="font-bold text-sm text-[#6D63D6]">DXS [SERENADE] D2</p>
-                <a href="https://maps.app.goo.gl/eYgyHHSRezUR_2jZaVUIaBE" target="_blank" class="address-link">Inspire Arena Incheon</a>
-            </div>
-        </div>
-    </div>
 
     <div id="tab-info" class="hidden">
-        <h2 class="text-xl font-bold mb-6 text-gray-800">Quick Links</h2>
-        <div class="card">
-            <p class="font-bold text-xs mb-2">Shopping & Cafe</p>
-            <a href="https://maps.app.goo.gl/p-ySCOujfDURWoyhMT7zfzE" target="_blank" class="address-link mb-2">Tamburins Flagship Sinsa</a>
-            <a href="https://maps.app.goo.gl/9XDV4O-ifDURKjI94KEc1h4" target="_blank" class="address-link mb-2">Olive Young Myeongdong Town</a>
-            <a href="https://maps.app.goo.gl/WxzLLdeZfDURdomTdcCXhMc" target="_blank" class="address-link">Blue Bottle Hongdae</a>
+        <h2 class="text-xl font-bold mb-4">Essential Info</h2>
+        
+        <div class="card op-card">
+            <p class="font-bold text-slate-700 mb-3"><i class="fa-solid fa-clock mr-2"></i>BTS 現場運營時間 (4/11-12)</p>
+            <div class="time-row"><span>票務處/服務台</span><span class="font-bold">11:00 - 19:30</span></div>
+            <div class="time-row"><span>Sound Check 入場</span><span class="font-bold">14:10</span></div>
+            <div class="time-row"><span>Sound Check 開始</span><span class="font-bold">15:40</span></div>
+            <div class="time-row"><span>一般觀眾入場</span><span class="font-bold">16:00</span></div>
+            <div class="time-row" style="border:none"><span>演出開始</span><span class="font-bold text-purple-600">19:00</span></div>
         </div>
-        <div class="card hotel-card">
-            <p class="font-bold text-xs mb-2">Accommodation</p>
-            <a href="https://maps.app.goo.gl/6V4-_-KefDURGCFh8eRtT2s" target="_blank" class="address-link">Vamos Hotel Yeongdeungpo</a>
+
+        <div class="card army-card">
+            <p class="font-bold text-purple-700 mb-2"><i class="fa-solid fa-star mr-2"></i>Army Zone (11am - 6pm)</p>
+            <p class="text-[10px] text-gray-500 mb-2">📍 高陽主體育場旁補助競技場</p>
+            <ul class="text-[11px] space-y-1 text-gray-700">
+                <li><i class="fa-solid fa-circle-check text-purple-300 mr-1"></i> 當日門票 / 護照 / 會員碼</li>
+            </ul>
+        </div>
+
+        <div class="card" style="background: #F0F7FF; border: 1px solid #CFE2FF;">
+            <p class="font-bold text-blue-700 mb-1">6007 巴士 (往汝矣島)</p>
+            <p class="text-xs">T2 地庫 B1 層 27 號月台</p>
+            <p class="text-[10px] text-blue-400 mt-1">班次: 06:40 / 07:25 / 08:10</p>
         </div>
     </div>
 
     <div id="tab-shop" class="hidden">
-        <h2 class="text-xl font-bold mb-6 text-gray-800">Shopping List</h2>
-        <div class="card flex justify-between items-center"><span class="text-sm">Tamburins 護手霜</span></div>
+        <h2 class="text-xl font-bold mb-4">Shopping List</h2>
+        <div class="card flex justify-between"><span>Tamburins</span><i class="fa-solid fa-check text-purple-100"></i></div>
     </div>
 </main>
 
 <script>
-    function showMainTab(name) {
+    function showTab(name) {
         ['schedule', 'info', 'shop'].forEach(t => {
             document.getElementById('tab-' + t).classList.add('hidden');
-            document.getElementById('mbtn-' + t).classList.remove('active');
+            document.getElementById('b-' + t).classList.remove('active');
         });
         document.getElementById('tab-' + name).classList.remove('hidden');
-        document.getElementById('mbtn-' + name).classList.add('active');
+        document.getElementById('b-' + name).classList.add('active');
     }
     function filterDate(d) {
-        ['0411', '0412', '0418', '0419'].forEach(date => {
-            document.getElementById('date-' + date).classList.add('hidden');
-            document.getElementById('d' + date).classList.remove('active');
-        });
-        document.getElementById('date-' + d).classList.remove('hidden');
+        document.querySelectorAll('.date-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.date-btn').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById('date-' + d);
+        if(target) target.classList.remove('hidden');
         document.getElementById('d' + d).classList.add('active');
     }
 </script>
-
 </body>
 </html>
