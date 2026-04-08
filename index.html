@@ -9,31 +9,43 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap');
         :root { --main-purple: #9D94FF; --bg-soft: #F9F8FF; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-soft); color: #4A4A4A; margin: 0; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-soft); color: #4A4A4A; margin: 0; padding-bottom: 100px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        header { background: #E0DEFF; height: 250px; position: relative; overflow: hidden; }
-        header img { width: 100%; height: 100%; object-fit: cover; }
-        .content-area { border-radius: 35px 35px 0 0; margin-top: -30px; background: white; min-height: 80vh; padding: 25px; position: relative; z-index: 10; }
         
+        header { background: #E0DEFF; height: 220px; overflow: hidden; position: relative; }
+        header img { width: 100%; height: 100%; object-fit: cover; }
+        .weather-bar { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+
+        .content-area { border-radius: 35px 35px 0 0; margin-top: -30px; background: white; min-height: 80vh; padding: 25px; position: relative; z-index: 10; }
         .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 25px; display: flex; width: 85%; max-width: 400px; padding: 12px; justify-content: space-around; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100; }
         .tab-btn { color: #D1C4E9; text-align: center; font-size: 10px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { color: var(--main-purple); }
 
-        .card { background: white; border: 1px solid #F0EEFF; border-radius: 20px; padding: 18px; margin-bottom: 12px; }
-        .hotel-card { background: #FFF9F2; border: 1px solid #FFE0B2; }
-        .army-card { background: #FAF5FF; border: 1px solid #E9D5FF; }
-        .op-card { background: #F8FAFC; border: 1px solid #E2E8F0; }
+        /* Timeline & Cards */
+        .timeline-item { display: flex; gap: 15px; margin-bottom: 20px; }
+        .timeline-time { width: 45px; font-size: 13px; font-weight: bold; color: var(--main-purple); text-align: right; flex-shrink: 0; }
+        .timeline-content { flex-grow: 1; background: #FAF9FF; border-radius: 15px; padding: 12px; border: 1px solid #F0EEFF; }
+        .hotel-tag { background: #FFF4E5; border: 1px solid #FFE0B2; border-radius: 15px; padding: 12px; margin-bottom: 15px; }
+        .map-link { color: #9D94FF; font-size: 11px; text-decoration: underline; font-weight: bold; }
         
-        .address-btn { font-size: 11px; color: #9D94FF; text-decoration: underline; margin-top: 5px; display: block; font-weight: bold; }
         .date-btn { flex-shrink: 0; width: 50px; height: 65px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F8F7FF; color: #D1C4E9; cursor: pointer; }
         .date-btn.active { background: var(--main-purple); color: white; }
         .hidden { display: none; }
-        .time-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #E2E8F0; padding: 6px 0; font-size: 11px; }
+
+        /* Combined Info Card */
+        .combined-card { background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+        .info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #E9D5FF; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<header><img src="header.png" onerror="this.src='https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&q=80&w=1000'"></header>
+<header>
+    <img src="header.png" alt="Banner">
+    <div class="weather-bar" id="weather-info">
+        <i class="fa-solid fa-cloud-sun text-yellow-500"></i>
+        <span>18°C</span>
+    </div>
+</header>
 
 <div class="nav-bar">
     <div onclick="showTab('schedule')" id="b-schedule" class="tab-btn active"><i class="fa-solid fa-calendar-day text-xl block"></i>行程</div>
@@ -41,7 +53,7 @@
     <div onclick="showTab('shop')" id="b-shop" class="tab-btn"><i class="fa-solid fa-basket-shopping text-xl block"></i>清單</div>
 </div>
 
-<main class="content-area pb-24">
+<main class="content-area">
     <div id="tab-schedule">
         <div class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-2">
             <div onclick="filterDate('0411')" id="d0411" class="date-btn active"><span>11</span><small>SAT</small></div>
@@ -54,48 +66,51 @@
         </div>
 
         <div id="date-0411" class="date-content">
-            <div class="card hotel-card">
-                <p class="font-bold text-sm text-orange-600"><i class="fa-solid fa-bed mr-1"></i> Glad 汝矣島</p>
-                <a href="https://maps.google.com/?cid=17157002227709954818&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ4" target="_blank" class="address-btn">Google Maps</a>
+            <div class="hotel-tag">
+                <p class="font-bold text-sm">Glad Yeouido (汝矣島)</p>
+                <a href="https://www.google.com/maps/search/Glad+Yeouido" target="_blank" class="map-link">Google Maps</a>
             </div>
-            <div class="card" style="background: #F0F9FF;"><p class="text-sm font-bold">06:25 抵達仁川 T2</p></div>
-            <div class="card" style="border-left: 5px solid #9D94FF;">
-                <p class="font-bold text-sm">BTS [ARIRANG] - 19:00</p>
-                <p class="text-[10px] text-gray-400 mt-1">詳情請看「資訊」分頁營運表</p>
-            </div>
+            <div class="timeline-item"><div class="timeline-time">01:25</div><div class="timeline-content"><p class="text-sm">HKG 出發</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">06:25</div><div class="timeline-content"><p class="font-bold text-sm">抵達仁川 T2</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">07:25</div><div class="timeline-content"><p class="text-sm">6007 巴士前往汝矣島</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">19:00</div><div class="timeline-content" style="border-left: 4px solid var(--main-purple);"><p class="font-bold text-sm">BTS [ARIRANG] 開演</p></div></div>
         </div>
+        
+        <div id="date-0420" class="date-content hidden">
+            <div class="timeline-item"><div class="timeline-time">21:30</div><div class="timeline-content" style="border-left: 4px solid #60A5FA;"><p class="font-bold text-sm">回程航班 BX3935</p></div></div>
         </div>
+    </div>
 
     <div id="tab-info" class="hidden">
         <h2 class="text-xl font-bold mb-4">Essential Info</h2>
         
-        <div class="card op-card">
-            <p class="font-bold text-slate-700 mb-3"><i class="fa-solid fa-clock mr-2"></i>BTS 現場運營時間 (4/11-12)</p>
-            <div class="time-row"><span>票務處/服務台</span><span class="font-bold">11:00 - 19:30</span></div>
-            <div class="time-row"><span>Sound Check 入場</span><span class="font-bold">14:10</span></div>
-            <div class="time-row"><span>Sound Check 開始</span><span class="font-bold">15:40</span></div>
-            <div class="time-row"><span>一般觀眾入場</span><span class="font-bold">16:00</span></div>
-            <div class="time-row" style="border:none"><span>演出開始</span><span class="font-bold text-purple-600">19:00</span></div>
+        <div class="combined-card">
+            <p class="font-bold text-purple-700 mb-3"><i class="fa-solid fa-star mr-2"></i>BTS 現場營運詳情 (4.11-12)</p>
+            <div class="info-row"><span>Army Zone 營運</span><span class="font-bold">11:00 - 18:00</span></div>
+            <div class="info-row"><span>票務處/服務台</span><span class="font-bold">11:00 - 19:30</span></div>
+            <div class="info-row"><span>Sound Check 入場</span><span class="font-bold">14:10</span></div>
+            <div class="info-row"><span>Sound Check 開始</span><span class="font-bold">15:40</span></div>
+            <div class="info-row"><span>一般觀眾入場</span><span class="font-bold">16:00</span></div>
+            <div class="info-row" style="border:none"><span>演出開始</span><span class="font-bold text-purple-600">19:00</span></div>
+            
+            <div class="mt-4 p-3 bg-white rounded-xl text-[11px] text-gray-500">
+                📍 地點：高陽主體育場旁補助競技場<br>
+                🗄️ 必備：當日門票、護照原件、Weverse 會員碼
+            </div>
         </div>
 
-        <div class="card army-card">
-            <p class="font-bold text-purple-700 mb-2"><i class="fa-solid fa-star mr-2"></i>Army Zone (11am - 6pm)</p>
-            <p class="text-[10px] text-gray-500 mb-2">📍 高陽主體育場旁補助競技場</p>
-            <ul class="text-[11px] space-y-1 text-gray-700">
-                <li><i class="fa-solid fa-circle-check text-purple-300 mr-1"></i> 當日門票 / 護照 / 會員碼</li>
-            </ul>
-        </div>
-
-        <div class="card" style="background: #F0F7FF; border: 1px solid #CFE2FF;">
-            <p class="font-bold text-blue-700 mb-1">6007 巴士 (往汝矣島)</p>
-            <p class="text-xs">T2 地庫 B1 層 27 號月台</p>
-            <p class="text-[10px] text-blue-400 mt-1">班次: 06:40 / 07:25 / 08:10</p>
+        <div class="combined-card" style="background: #F0F7FF; border-color: #CFE2FF;">
+            <p class="font-bold text-blue-700 mb-2"><i class="fa-solid fa-bus mr-2"></i>6007 機場巴士</p>
+            <div class="text-xs space-y-1">
+                <p>位置：T2 B1層 27號月台</p>
+                <p>班次：06:40 / 07:25 / 08:10</p>
+            </div>
         </div>
     </div>
 
     <div id="tab-shop" class="hidden">
         <h2 class="text-xl font-bold mb-4">Shopping List</h2>
-        <div class="card flex justify-between"><span>Tamburins</span><i class="fa-solid fa-check text-purple-100"></i></div>
+        <div class="card flex justify-between p-4 bg-white rounded-2xl border border-purple-50"><span>Tamburins</span><i class="fa-solid fa-check text-purple-200"></i></div>
     </div>
 </main>
 
@@ -114,6 +129,13 @@
         const target = document.getElementById('date-' + d);
         if(target) target.classList.remove('hidden');
         document.getElementById('d' + d).classList.add('active');
+        
+        const weather = document.getElementById('weather-info');
+        if (d === '0419') {
+            weather.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy text-blue-500"></i><span>14°C</span>';
+        } else {
+            weather.innerHTML = '<i class="fa-solid fa-cloud-sun text-yellow-500"></i><span>18°C</span>';
+        }
     }
 </script>
 </body>
