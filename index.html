@@ -12,11 +12,16 @@
         :root { --primary-purple: #9D94FF; --bg-purple: #F9F8FF; }
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-purple); margin: 0; padding: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        header { background: #E0DEFF; position: relative; height: 280px; overflow: hidden; }
-        header img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
-        .banner-mask { border-radius: 35px 35px 0 0; margin-top: -30px; position: relative; background: #ffffff; min-height: 80vh; z-index: 10; padding: 24px; }
+        
+        /* Header 修正 */
+        header { background: #E0DEFF; position: relative; height: 320px; overflow: hidden; }
+        header img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: 1; }
+        
+        .banner-mask { border-radius: 35px 35px 0 0; margin-top: -30px; position: relative; background: #ffffff; min-height: 80vh; z-index: 10; padding: 24px; box-shadow: 0 -10px 30px rgba(157, 148, 255, 0.1); }
         .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.4); border-radius: 20px; }
         .time-line::before { content: ''; position: absolute; left: 52px; top: 0; bottom: 0; width: 2px; background: #F0EEFF; }
+        
+        /* 特殊卡片樣式 */
         .concert-card { border: 2px solid #6D63D6 !important; background: #FAF9FF; }
         .van-card { background: #F5F3FF; border: 1.5px dashed #B794FF; }
         .modal-bg { background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -26,10 +31,10 @@
 
 <div id="app">
     <header>
-        <img src="header.png" onerror="this.parentElement.style.background='#E0DEFF'; this.style.display='none'">
-        <nav class="absolute bottom-6 right-4 flex space-x-4 p-2 glass-nav z-20 shadow-lg">
+        <img src="header.jpg" onerror="this.parentElement.style.background='linear-gradient(135deg, #E0DEFF 0%, #F9F8FF 100%)'; this.style.display='none'">
+        <nav class="absolute bottom-8 right-4 flex space-x-4 p-2 glass-nav z-20 shadow-xl">
             <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id" 
-                    :class="currentTab === tab.id ? 'text-[#6D63D6]' : 'text-purple-300'" class="p-2 text-center">
+                    :class="currentTab === tab.id ? 'text-[#6D63D6] scale-110' : 'text-purple-300'" class="p-2 text-center transition-all">
                 <i :class="tab.icon" class="text-xl block"></i>
                 <span class="text-[9px] font-bold">{{ tab.name }}</span>
             </button>
@@ -39,69 +44,71 @@
     <main class="banner-mask">
         <div v-if="currentTab === 'schedule'">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black">Trip Schedule</h2>
-                <button @click="showAddPlan = true" class="bg-purple-100 text-[#6D63D6] p-2 rounded-xl w-10 h-10"><i class="fa-solid fa-plus"></i></button>
+                <h2 class="text-xl font-black text-gray-800">Trip Schedule</h2>
+                <button @click="showAddPlan = true" class="bg-purple-100 text-[#6D63D6] p-2 rounded-xl w-10 h-10 flex items-center justify-center active:scale-90 transition-all"><i class="fa-solid fa-plus"></i></button>
             </div>
 
-            <div class="flex gap-3 overflow-x-auto no-scrollbar mb-6">
+            <div class="flex gap-3 overflow-x-auto no-scrollbar mb-8 py-2">
                 <div v-for="d in dates" :key="d.date" @click="activeDate = d.date"
-                     class="flex-shrink-0 w-14 h-20 rounded-2xl flex flex-col items-center justify-center transition-all"
-                     :class="activeDate === d.date ? 'bg-[#9D94FF] text-white' : 'bg-gray-50 text-purple-200'">
+                     class="flex-shrink-0 w-14 h-20 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all"
+                     :class="activeDate === d.date ? 'bg-[#9D94FF] text-white shadow-lg' : 'bg-white text-purple-200 border border-purple-50'">
                     <span class="text-xs font-bold">{{ d.day }}</span>
-                    <span class="text-[9px] uppercase">{{ d.weekday }}</span>
+                    <span class="text-[9px] uppercase font-black opacity-60">{{ d.weekday }}</span>
                 </div>
             </div>
 
             <div class="relative time-line">
-                <div v-for="item in dailyPlans" v-if="item.date === activeDate" class="flex gap-4 mb-6 relative">
-                    <div class="w-12 text-[10px] font-bold text-purple-400 pt-1">{{ item.time }}</div>
-                    <div class="flex-1 bg-white p-4 rounded-3xl border border-purple-50 shadow-sm" :class="{'concert-card': item.isConcert, 'van-card': item.isVan}">
-                        <h3 class="font-bold text-sm">{{ item.name }}</h3>
-                        <p class="text-[10px] text-gray-400 mt-1">{{ item.note }}</p>
+                <div v-for="item in dailyPlans" v-if="item.date === activeDate" class="flex gap-4 mb-6 relative z-10">
+                    <div class="w-12 text-[10px] font-black text-purple-400 pt-1">{{ item.time }}</div>
+                    <div class="flex-1 bg-white p-5 rounded-[28px] border border-purple-50 shadow-sm" :class="{'concert-card': item.isConcert, 'van-card': item.isVan}">
+                        <h3 class="font-bold text-sm text-gray-800">{{ item.name }}</h3>
+                        <p v-if="item.isConcert" class="text-[10px] text-[#6D63D6] mt-2 font-bold italic">⏱ 預計 3小時完場</p>
+                        <p class="text-[10px] text-gray-400 mt-1 leading-relaxed">{{ item.note }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div v-if="currentTab === 'info'">
+        <div v-if="currentTab === 'info'" class="space-y-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black">Gallery & Info</h2>
+                <h2 class="text-xl font-black text-gray-800">Gallery & Info</h2>
                 <label class="bg-purple-100 text-[#6D63D6] p-2 rounded-xl w-10 h-10 flex items-center justify-center cursor-pointer">
                     <i class="fa-solid fa-plus"></i>
                     <input type="file" class="hidden" @change="uploadImage">
                 </label>
             </div>
-            <div v-for="(img, idx) in infoImages" :key="idx" class="mb-4 rounded-3xl overflow-hidden shadow">
+            <div v-for="(img, idx) in infoImages" :key="idx" class="relative mb-4 rounded-3xl overflow-hidden shadow-md group">
                 <img :src="img" class="w-full h-auto">
+                <button @click="infoImages.splice(idx,1)" class="absolute top-2 right-2 bg-black/30 text-white w-6 h-6 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity">✕</button>
             </div>
         </div>
 
-        <div v-if="currentTab === 'shopping'">
+        <div v-if="currentTab === 'shopping'" class="space-y-6">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black">Shopping List</h2>
-                <button @click="showAddShopping = true" class="bg-purple-100 text-[#6D63D6] p-2 rounded-xl w-10 h-10"><i class="fa-solid fa-plus"></i></button>
+                <h2 class="text-xl font-black text-gray-800">Shopping List</h2>
+                <button @click="showAddShopping = true" class="bg-purple-100 text-[#6D63D6] p-2 rounded-xl w-10 h-10 flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
             </div>
-            <div v-for="(item, idx) in shoppingList" :key="idx" class="bg-white p-4 rounded-2xl mb-3 flex justify-between items-center border border-gray-100">
-                <span class="font-bold text-sm">{{ item }}</span>
-                <button @click="shoppingList.splice(idx,1)" class="text-gray-200"><i class="fa-solid fa-trash"></i></button>
+            <div v-for="(item, idx) in shoppingList" :key="idx" class="bg-white p-5 rounded-[25px] mb-3 flex justify-between items-center border border-purple-50 shadow-sm">
+                <span class="font-bold text-sm text-gray-700">{{ item }}</span>
+                <button @click="shoppingList.splice(idx,1)" class="text-purple-200"><i class="fa-solid fa-circle-minus"></i></button>
             </div>
         </div>
     </main>
 
     <div v-if="showAddPlan" class="modal-bg" @click.self="showAddPlan = false">
-        <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-xl">
-            <h3 class="font-bold mb-4">新增行程</h3>
-            <input v-model="newPlan.time" type="time" class="w-full bg-gray-50 p-3 rounded-xl mb-3 outline-none">
-            <input v-model="newPlan.name" placeholder="名稱" class="w-full bg-gray-50 p-3 rounded-xl mb-4 outline-none">
-            <button @click="addPlan" class="w-full bg-[#9D94FF] text-white py-3 rounded-xl font-bold">確認添加</button>
+        <div class="bg-white w-full max-w-xs rounded-[35px] p-8 shadow-2xl">
+            <h3 class="font-black text-gray-800 mb-6">新增行程</h3>
+            <input v-model="newPlan.time" type="time" class="w-full bg-purple-50 p-4 rounded-2xl mb-4 outline-none border border-purple-100">
+            <input v-model="newPlan.name" placeholder="要去哪裡？" class="w-full bg-purple-50 p-4 rounded-2xl mb-6 outline-none border border-purple-100">
+            <button @click="addPlan" class="w-full bg-[#9D94FF] text-white py-4 rounded-2xl font-bold shadow-lg">確認添加</button>
         </div>
     </div>
 
     <div v-if="showAddShopping" class="modal-bg" @click.self="showAddShopping = false">
-        <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-xl">
-            <h3 class="font-bold mb-4">新增購物</h3>
-            <input v-model="newItem" placeholder="輸入商品名稱" class="w-full bg-gray-50 p-3 rounded-xl mb-4 outline-none">
-            <button @click="addShopping" class="w-full bg-[#9D94FF] text-white py-3 rounded-xl font-bold">加入清單</button>
+        <div class="bg-white w-full max-w-xs rounded-[35px] p-8 shadow-2xl">
+            <h3 class="font-black text-gray-800 mb-6">想要買什麼？</h3>
+            <input v-model="newItem" placeholder="輸入商品名稱" class="w-full bg-purple-50 p-4 rounded-2xl mb-6 outline-none border border-purple-100">
+            <button @click="addShopping" class="w-full bg-[#9D94FF] text-white py-4 rounded-2xl font-bold shadow-lg">加入清單</button>
         </div>
     </div>
 </div>
@@ -118,15 +125,17 @@
             const newItem = ref('');
             
             const infoImages = ref([]);
-            const shoppingList = ref(['Tamburins 護手霜']);
+            const shoppingList = ref(['Tamburins 護手霜', 'Olive Young 補貨']);
+            
+            // 固定的基礎行程
             const dailyPlans = ref([
-                {date:'2026-04-11',time:'19:00',name:'BTS IN GOYANG',isConcert:true,note:'Goyang Stadium'},
+                {date:'2026-04-11',time:'19:00',name:'BTS IN GOYANG (D1)',isConcert:true,note:'Goyang Stadium'},
                 {date:'2026-04-11',time:'22:15',name:'🚐 包車回弘大',isVan:true,note:'出口集合'},
-                {date:'2026-04-12',time:'19:00',name:'BTS IN GOYANG',isConcert:true,note:'Goyang Stadium'},
+                {date:'2026-04-12',time:'19:00',name:'BTS IN GOYANG (D2)',isConcert:true,note:'Goyang Stadium'},
                 {date:'2026-04-12',time:'22:15',name:'🚐 包車回弘大',isVan:true,note:'出口集合'},
-                {date:'2026-04-18',time:'18:00',name:'DXS [SERENADE]',isConcert:true,note:'Inspire Arena'},
+                {date:'2026-04-18',time:'18:00',name:'DXS [SERENADE] (D1)',isConcert:true,note:'Inspire Arena'},
                 {date:'2026-04-18',time:'21:15',name:'🚐 包車回弘大',isVan:true,note:'停車場集合'},
-                {date:'2026-04-19',time:'17:00',name:'DXS [SERENADE]',isConcert:true,note:'Inspire Arena'},
+                {date:'2026-04-19',time:'17:00',name:'DXS [SERENADE] (D2)',isConcert:true,note:'Inspire Arena'},
                 {date:'2026-04-19',time:'20:15',name:'🚐 包車回弘大',isVan:true,note:'停車場集合'}
             ]);
 
@@ -161,19 +170,20 @@
                 }
             };
 
+            // 數據存儲與恢復
             onMounted(() => {
-                const savedPlans = localStorage.getItem('tracy_p_v12');
-                if (savedPlans) dailyPlans.value = JSON.parse(savedPlans);
-                const savedImg = localStorage.getItem('tracy_i_v12');
-                if (savedImg) infoImages.value = JSON.parse(savedImg);
-                const savedShop = localStorage.getItem('tracy_s_v12');
-                if (savedShop) shoppingList.value = JSON.parse(savedShop);
+                const p = localStorage.getItem('tracy_p_final');
+                if (p) dailyPlans.value = JSON.parse(p);
+                const i = localStorage.getItem('tracy_i_final');
+                if (i) infoImages.value = JSON.parse(i);
+                const s = localStorage.getItem('tracy_s_final');
+                if (s) shoppingList.value = JSON.parse(s);
             });
 
             watch([dailyPlans, infoImages, shoppingList], () => {
-                localStorage.setItem('tracy_p_v12', JSON.stringify(dailyPlans.value));
-                localStorage.setItem('tracy_i_v12', JSON.stringify(infoImages.value));
-                localStorage.setItem('tracy_s_v12', JSON.stringify(shoppingList.value));
+                localStorage.setItem('tracy_p_final', JSON.stringify(dailyPlans.value));
+                localStorage.setItem('tracy_i_final', JSON.stringify(infoImages.value));
+                localStorage.setItem('tracy_s_final', JSON.stringify(shoppingList.value));
             }, { deep: true });
 
             return {
