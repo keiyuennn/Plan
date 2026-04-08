@@ -17,7 +17,9 @@
                         'bts-purple': '#A689CA', 
                         'soft-purple': '#F3EFFF',
                         'deep-purple': '#7C59D9',
-                        'dinner-orange': '#FFB7B2'
+                        'dinner-orange': '#FFB7B2',
+                        'inspire-gold': '#D4AF37',
+                        'car-black': '#334155'
                     }
                 }
             }
@@ -28,22 +30,14 @@
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #A689CA; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
         .glass-header { background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
         .tab-active { background: white !important; color: #7C59D9 !important; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        
-        /* 動畫 */
         .animate-slide-up { animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        /* 行程線 */
         .timeline-line { position: absolute; left: 24px; top: 0; bottom: 0; width: 2px; background: rgba(166, 137, 202, 0.2); z-index: 0; }
-        
-        /* 演唱會卡片發光效果 */
-        .concert-card { 
-            box-shadow: 0 10px 25px -5px rgba(124, 89, 217, 0.3); 
-            border-left: 6px solid #7C59D9;
-        }
+        .concert-card { border-left: 6px solid #7C59D9; }
+        .inspire-card { border-left: 6px solid #D4AF37; }
+        .car-card { border-left: 6px solid #334155; }
         .dinner-card { border-left: 6px solid #FFB7B2; }
     </style>
 </head>
@@ -51,11 +45,13 @@
 
     <div id="app" class="max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl bg-bts-purple">
         
-        <header class="relative w-full h-[28vh] overflow-hidden">
-            <div class="w-full h-full bg-gradient-to-br from-bts-purple to-deep-purple flex items-center justify-center">
-                <h1 class="text-white text-3xl font-black tracking-tighter italic">TRACY MAP</h1>
+        <header class="relative w-full h-[25vh] overflow-hidden">
+            <div class="w-full h-full bg-gradient-to-br from-bts-purple to-deep-purple flex items-center justify-center text-center">
+                <div>
+                    <h1 class="text-white text-3xl font-black tracking-tighter italic">TRACY MAP</h1>
+                    <p class="text-white/70 text-[10px] font-bold tracking-[0.2em] mt-1">SEOUL & INCHEON 2026</p>
+                </div>
             </div>
-            
             <div class="absolute bottom-8 left-4 right-4 glass-header rounded-full p-1.5 flex justify-between items-center z-20 border border-white/30">
                 <button v-for="tab in tabs" :key="tab.id" @click="currentTab = tab.id"
                         :class="['flex-1 py-2.5 flex flex-col items-center transition-all', currentTab === tab.id ? 'tab-active' : 'text-white/90']">
@@ -65,94 +61,101 @@
             <div class="absolute bottom-0 w-full h-8 bg-soft-purple rounded-t-[40px] z-10"></div>
         </header>
 
-        <main class="flex-1 bg-soft-purple px-4 -mt-1 pb-32 z-10 min-h-[72vh] no-scrollbar overflow-y-auto">
+        <main class="flex-1 bg-soft-purple px-4 pb-32 z-10 no-scrollbar overflow-y-auto min-h-[75vh]">
             
             <div v-if="currentTab === 'itinerary'" class="animate-slide-up">
                 
                 <div class="flex gap-2.5 overflow-x-auto no-scrollbar py-2 mb-6">
                     <div v-for="day in dates" :key="day.date" 
                          @click="selectedDate = day.date"
-                         :class="['flex flex-col items-center min-w-[65px] p-3 rounded-2xl transition-all border', selectedDate === day.date ? 'bg-bts-purple text-white border-transparent shadow-lg scale-105' : 'bg-white text-slate-400 border-purple-50']">
+                         :class="['flex flex-col items-center min-w-[70px] p-3 rounded-2xl transition-all border', selectedDate === day.date ? 'bg-bts-purple text-white border-transparent shadow-lg scale-105' : 'bg-white text-slate-400 border-purple-50']">
                         <span class="text-[9px] font-black uppercase">{{ day.weekday }}</span>
                         <span class="text-lg font-black">{{ day.dayNum }}</span>
+                        <span class="text-[8px] mt-1 font-bold">{{ day.low }}°/{{ day.high }}°</span>
                     </div>
                 </div>
 
                 <div class="relative pl-14 pr-2 space-y-6">
                     <div class="timeline-line"></div>
                     
-                    <div v-if="currentDayItems.length === 0" class="py-20 text-center">
-                        <i data-lucide="calendar" class="w-12 h-12 mx-auto text-bts-purple/20 mb-3"></i>
-                        <p class="text-slate-400 text-sm font-medium">今天暫無計畫，去探索吧！</p>
-                    </div>
-
                     <div v-for="item in currentDayItems" :key="item.id" class="relative">
                         <div class="absolute -left-[56px] top-4 w-12 text-right">
                             <span class="text-[11px] font-black text-bts-purple leading-none">{{ item.time }}</span>
                         </div>
-
                         <div class="absolute -left-[35px] top-5 w-2.5 h-2.5 rounded-full bg-bts-purple border-2 border-white z-10 shadow-sm"></div>
 
-                        <div v-if="item.category === 'concert'" 
-                             class="concert-card bg-white rounded-[28px] p-5 active:scale-[0.98] transition-transform">
+                        <div v-if="item.category === 'concert'" class="concert-card bg-white rounded-[28px] p-5 shadow-md">
                             <div class="flex justify-between items-center mb-1">
                                 <span class="text-[10px] font-black text-bts-purple tracking-widest uppercase">Live Event</span>
                                 <i data-lucide="mic-2" class="w-4 h-4 text-bts-purple"></i>
                             </div>
                             <h3 class="font-black text-slate-800 text-base leading-tight">{{ item.name }}</h3>
-                            <div class="flex items-center gap-1 mt-1 mb-4 text-slate-400">
-                                <i data-lucide="map-pin" class="w-3 h-3"></i>
-                                <span class="text-[10px] font-medium">{{ item.locationName }}</span>
-                            </div>
-                            <button @click="openNav(item.address)" class="w-full py-2.5 bg-soft-purple text-bts-purple rounded-xl font-bold text-[11px] flex items-center justify-center gap-2">
-                                <i data-lucide="navigation" class="w-3.5 h-3.5"></i> 開啟地圖導航
-                            </button>
+                            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i> 高陽綜合運動競技場
+                            </p>
                         </div>
 
-                        <div v-else-if="item.category === 'dinner'" 
-                             class="dinner-card bg-white rounded-[28px] p-5 active:scale-[0.98] transition-transform shadow-sm">
+                        <div v-else-if="item.category === 'inspire'" class="inspire-card bg-white rounded-[28px] p-5 shadow-md">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="text-[10px] font-black text-dinner-orange tracking-widest uppercase">Gathering</span>
+                                <span class="text-[10px] font-black text-inspire-gold tracking-widest uppercase">Special Arena</span>
+                                <i data-lucide="sparkles" class="w-4 h-4 text-inspire-gold"></i>
+                            </div>
+                            <h3 class="font-black text-slate-800 text-base leading-tight">{{ item.name }}</h3>
+                            <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
+                                <i data-lucide="map-pin" class="w-3 h-3"></i> 仁川 Inspire Arena
+                            </p>
+                        </div>
+
+                        <div v-else-if="item.category === 'shuttle'" class="car-card bg-slate-800 rounded-[24px] p-4 text-white shadow-lg active:scale-95 transition-all">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i data-lucide="car" class="w-4 h-4 text-blue-400"></i>
+                                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Private Transfer</span>
+                                    </div>
+                                    <h3 class="font-black text-sm">預約包車接送</h3>
+                                    <p class="text-[10px] text-slate-400 mt-1">場地 → 弘大 (Hongdae)</p>
+                                </div>
+                                <div class="bg-blue-500/20 p-2 rounded-xl">
+                                    <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else-if="item.category === 'dinner'" class="dinner-card bg-white rounded-[28px] p-5 shadow-sm">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[10px] font-black text-dinner-orange tracking-widest uppercase">After Concert</span>
                                 <i data-lucide="utensils" class="w-4 h-4 text-dinner-orange"></i>
                             </div>
                             <h3 class="font-black text-slate-800 text-base">{{ item.name }}</h3>
-                            <p class="text-[10px] text-slate-400 mt-1 mb-3">與 彤彤、Carly 慶功晚餐！</p>
-                            <button @click="openNav(item.address)" class="w-full py-2.5 bg-orange-50 text-orange-400 rounded-xl font-bold text-[11px] flex items-center justify-center gap-2">
-                                <i data-lucide="navigation" class="w-3.5 h-3.5"></i> 查看餐廳位置
-                            </button>
+                            <p class="text-[10px] text-slate-400 mt-1">與 彤彤、Carly 慶祝聚會</p>
                         </div>
 
                         <div v-else class="bg-white rounded-[24px] p-4 shadow-sm border border-purple-50 flex items-center gap-4">
                             <div class="flex-1">
                                 <h3 class="font-bold text-slate-800 text-sm">{{ item.name }}</h3>
-                                <p v-if="item.note" class="text-[10px] text-slate-400 mt-1 leading-relaxed">{{ item.note }}</p>
+                                <p v-if="item.note" class="text-[10px] text-slate-400 mt-1">{{ item.note }}</p>
                             </div>
+                            <i v-if="item.category === 'hotel'" data-lucide="home" class="w-5 h-5 text-slate-300"></i>
                             <i v-if="item.category === 'flight'" data-lucide="plane" class="w-5 h-5 text-bts-purple/30"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div v-if="currentTab === 'info'" class="py-6 space-y-6 animate-slide-up">
+            <div v-if="currentTab === 'info'" class="py-6 animate-slide-up">
                 <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
                     <h3 class="text-sm font-black text-bts-purple mb-4 flex items-center gap-2">
                         <i data-lucide="banknote" class="w-4 h-4"></i> 韓幣換算 HKD
                     </h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 ml-1 uppercase">KRW (韓幣)</label>
-                            <input v-model="krwAmount" type="number" class="w-full bg-soft-purple p-4 rounded-2xl outline-none font-black text-bts-purple text-xl">
-                        </div>
-                        <div class="bg-bts-purple text-white p-5 rounded-2xl text-center">
-                            <span class="text-[10px] font-bold opacity-80 block mb-1">約等於 (HKD)</span>
-                            <span class="text-2xl font-black">${{ (krwAmount * 0.00575).toFixed(2) }}</span>
-                        </div>
+                    <input v-model="krwAmount" type="number" class="w-full bg-soft-purple p-4 rounded-2xl outline-none font-black text-bts-purple text-xl">
+                    <div class="bg-bts-purple text-white p-5 rounded-2xl text-center mt-4">
+                        <span class="text-[10px] font-bold opacity-80 block mb-1">約等於 (HKD)</span>
+                        <span class="text-2xl font-black">${{ (krwAmount * 0.00575).toFixed(2) }}</span>
                     </div>
                 </div>
             </div>
         </main>
-
-        <div class="fixed bottom-0 max-w-md w-full h-20 bg-gradient-to-t from-soft-purple to-transparent pointer-events-none"></div>
     </div>
 
     <script>
@@ -162,66 +165,49 @@
                 const currentTab = ref('itinerary');
                 const selectedDate = ref('2026-04-11');
                 const krwAmount = ref(100000);
-                const tabs = [
-                    { id: 'itinerary', icon: 'map-pin' },
-                    { id: 'info', icon: 'info' },
-                    { id: 'shop', icon: 'shopping-basket' },
-                    { id: 'spend', icon: 'wallet' }
-                ];
+                const tabs = [{ id: 'itinerary', icon: 'map-pin' }, { id: 'info', icon: 'info' }, { id: 'shop', icon: 'shopping-basket' }, { id: 'spend', icon: 'wallet' }];
 
                 const dates = [
-                    { weekday: 'FRI', dayNum: '11', date: '2026-04-11' },
-                    { weekday: 'SAT', dayNum: '12', date: '2026-04-12' },
-                    { weekday: 'SUN', dayNum: '13', date: '2026-04-13' },
-                    { weekday: 'MON', dayNum: '14', date: '2026-04-14' },
-                    { weekday: 'TUE', dayNum: '15', date: '2026-04-15' },
-                    { weekday: 'WED', dayNum: '16', date: '2026-04-16' },
-                    { weekday: 'THU', dayNum: '17', date: '2026-04-17' },
-                    { weekday: 'FRI', dayNum: '18', date: '2026-04-18' },
-                    { weekday: 'SAT', dayNum: '19', date: '2026-04-19' },
-                    { weekday: 'SUN', dayNum: '20', date: '2026-04-20' },
-                    { weekday: 'MON', dayNum: '21', date: '2026-04-21' }
+                    { weekday: 'FRI', dayNum: '11', date: '2026-04-11', low: 9, high: 18 },
+                    { weekday: 'SAT', dayNum: '12', date: '2026-04-12', low: 10, high: 19 },
+                    { weekday: 'FRI', dayNum: '17', date: '2026-04-17', low: 11, high: 19 },
+                    { weekday: 'SAT', dayNum: '18', date: '2026-04-18', low: 12, high: 21 },
+                    { weekday: 'SUN', dayNum: '19', date: '2026-04-19', low: 13, high: 22 }
                 ];
 
                 const itineraryItems = ref([
-                    // 4/11 BTS
-                    { id: 1, date: '2026-04-11', name: 'BX3945 航班前往首爾', time: '01:25', category: 'flight', note: 'HKG T1 → ICN T2' },
-                    { id: 2, date: '2026-04-11', name: 'BTS 演唱會 (Day 1)', time: '19:00', category: 'concert', locationName: '高陽綜合運動競技場', address: 'Goyang Stadium' },
-                    // 4/12 BTS
-                    { id: 3, date: '2026-04-12', name: 'BTS 演唱會 (Day 2)', time: '19:00', category: 'concert', locationName: '高陽綜合運動競技場', address: 'Goyang Stadium' },
+                    // 4/11 BTS Day 1
+                    { id: 1, date: '2026-04-11', name: 'BX3945 航班前往首爾', time: '01:25', category: 'flight', note: 'HKG → ICN' },
+                    { id: 101, date: '2026-04-11', name: 'Glad Yeouido Check-in', time: '09:30', category: 'hotel' },
+                    { id: 2, date: '2026-04-11', name: 'BTS 演唱會 (Day 1)', time: '19:00', category: 'concert' },
+                    { id: 201, date: '2026-04-11', name: '包車回弘大', time: '22:00', category: 'shuttle' },
                     
-                    // 4/17 DxS + Dinner
-                    { id: 4, date: '2026-04-17', name: 'DxS 演唱會 (Day 1)', time: '19:30', category: 'concert', locationName: '首爾場館', address: 'Seoul' },
-                    { id: 5, date: '2026-04-17', name: '與彤彤、Carly 慶功晚餐', time: '22:30', category: 'dinner', address: 'Seoul Restaurant' },
+                    // 4/12 BTS Day 2
+                    { id: 3, date: '2026-04-12', name: 'BTS 演唱會 (Day 2)', time: '19:00', category: 'concert' },
+                    { id: 301, date: '2026-04-12', name: '包車回弘大', time: '22:00', category: 'shuttle' },
                     
-                    // 4/18 DxS
-                    { id: 6, date: '2026-04-18', name: 'DxS 演唱會 (Day 2)', time: '18:00', category: 'concert', locationName: '首爾場館', address: 'Seoul' },
+                    // 4/17 Inspire Arena
+                    { id: 4, date: '2026-04-17', name: 'DxS 演唱會 (Day 1)', time: '19:30', category: 'inspire' },
+                    { id: 401, date: '2026-04-17', name: '包車由 Inspire 出發', time: '22:15', category: 'shuttle' },
+                    { id: 5, date: '2026-04-17', name: '與彤彤、Carly 晚餐', time: '22:45', category: 'dinner' },
                     
-                    // 4/19 DxS
-                    { id: 7, date: '2026-04-19', name: 'DxS 演唱會 (Day 3)', time: '17:00', category: 'concert', locationName: '首爾場館', address: 'Seoul' }
+                    // 4/18 Inspire Arena
+                    { id: 6, date: '2026-04-18', name: 'DxS 演唱會 (Day 2)', time: '18:00', category: 'inspire' },
+                    { id: 601, date: '2026-04-18', name: '包車回弘大', time: '21:00', category: 'shuttle' },
+                    
+                    // 4/19 Inspire Arena
+                    { id: 7, date: '2026-04-19', name: 'DxS 演唱會 (Day 3)', time: '17:00', category: 'inspire' },
+                    { id: 701, date: '2026-04-19', name: '包車回弘大', time: '20:00', category: 'shuttle' }
                 ]);
 
-                // 根據選中日期過濾並排序行程
                 const currentDayItems = computed(() => {
                     return itineraryItems.value
                         .filter(i => i.date === selectedDate.value)
                         .sort((a,b) => a.time.localeCompare(b.time));
                 });
 
-                const openNav = (addr) => {
-                    if(!addr) return;
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`);
-                };
-                
-                onMounted(() => {
-                    lucide.createIcons();
-                    // 每次更新 DOM 後重新渲染圖示
-                    window.addEventListener('click', () => {
-                        setTimeout(() => lucide.createIcons(), 10);
-                    });
-                });
-
-                return { currentTab, tabs, dates, selectedDate, currentDayItems, krwAmount, openNav };
+                onMounted(() => { lucide.createIcons(); });
+                return { currentTab, tabs, dates, selectedDate, currentDayItems, krwAmount };
             }
         }).mount('#app');
     </script>
