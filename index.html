@@ -13,28 +13,25 @@
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-purple); margin: 0; padding: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* 橫幅容器：根據 736x552 比例調整高度 */
-        header { 
-            background: linear-gradient(135deg, #E0DEFF 0%, #F9F8FF 100%); 
-            position: relative; 
-            overflow: hidden; 
-            width: 100%;
-            height: 320px; /* 針對 4:3 比例優化的高度 */
-        }
-        header img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; /* 確保 736x552 圖片完美填充 */
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-        }
+        header { background: linear-gradient(135deg, #E0DEFF 0%, #F9F8FF 100%); position: relative; overflow: hidden; width: 100%; height: 320px; }
+        header img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
 
         .banner-mask { border-radius: 35px 35px 0 0; margin-top: -30px; position: relative; background: #ffffff; min-height: 70vh; box-shadow: 0 -10px 30px rgba(157, 148, 255, 0.08); z-index: 10; }
         .purple-gradient { background: linear-gradient(135deg, #9D94FF 0%, #B794FF 100%); }
         .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.4); }
         .time-line::before { content: ''; position: absolute; left: 52px; top: 0; bottom: 0; width: 2px; background: #F0EEFF; z-index: 0; }
         .concert-card { border: 2px solid var(--deep-purple) !important; box-shadow: 0 4px 15px rgba(109, 99, 214, 0.15) !important; }
+        
+        .fab { position: fixed; bottom: 100px; right: 20px; width: 56px; height: 56px; border-radius: 20px; display: flex; items-center: center; justify-content: center; color: white; box-shadow: 0 8px 20px rgba(157, 148, 255, 0.4); z-index: 50; }
+        
+        .info-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+        .info-table th { background: #F0EEFF; color: #6D63D6; padding: 8px; text-align: left; border-radius: 8px 8px 0 0; }
+        .info-table td { padding: 8px; border-bottom: 1px solid #F9F8FF; color: #666; }
+
+        .map-tag { font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 6px; display: inline-block; }
+        .tag-north { background: #E1F5FE; color: #0288D1; }
+        .tag-south { background: #FFF3E0; color: #EF6C00; }
+
         .modal-enter-active, .modal-leave-active { transition: opacity 0.3s ease; }
         .modal-enter-from, .modal-leave-to { opacity: 0; }
     </style>
@@ -56,6 +53,10 @@
         </nav>
     </header>
 
+    <button @click="currentTab = 'shopping'" class="fab purple-gradient">
+        <i class="fa-solid fa-plus text-2xl"></i>
+    </button>
+
     <main class="banner-mask p-6">
         <div v-if="currentTab === 'schedule'">
             <div class="flex gap-4 overflow-x-auto no-scrollbar mb-6 py-2">
@@ -67,27 +68,15 @@
                 </div>
             </div>
 
-            <a href="weather://" @click="openWeather" class="block mb-4 p-4 bg-blue-50/50 rounded-[28px] border border-white flex items-center justify-between shadow-sm active:scale-95 transition-transform">
-                <div v-if="weatherData[activeDate]" class="flex items-center gap-3">
-                    <div class="text-2xl">{{ weatherData[activeDate].icon }}</div>
-                    <div>
-                        <p class="text-[10px] font-bold text-blue-400 uppercase">Seoul Forecast</p>
-                        <p class="text-base font-black text-gray-700">{{ weatherData[activeDate].tempRange }}</p>
-                    </div>
-                </div>
-                <div v-if="weatherData[activeDate]" class="text-right text-[9px] text-gray-400 font-bold border-l border-white pl-4">
-                    <p class="text-blue-500">🌧️ {{ weatherData[activeDate].rainProb }}</p>
-                    <p>🌡️ 體感 {{ weatherData[activeDate].feelsLike }}</p>
-                </div>
-                <div v-else class="text-[10px] text-gray-400 italic px-4">查看首爾天氣</div>
-            </a>
-
             <div v-if="hotelData[activeDate]" class="mb-8 p-4 bg-[#9D94FF] rounded-[28px] shadow-md text-white flex items-center gap-4">
-                <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-hotel text-lg"></i></div>
-                <div class="flex-1">
+                <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-hotel text-lg"></i></div>
+                <div class="flex-1 overflow-hidden">
                     <p class="text-[9px] font-bold opacity-80 uppercase tracking-widest">Tonight's Stay</p>
-                    <h3 class="font-bold text-sm">{{ hotelData[activeDate].name }}</h3>
+                    <h3 class="font-bold text-sm truncate">{{ hotelData[activeDate].name }}</h3>
                 </div>
+                <a :href="hotelData[activeDate].map" target="_blank" class="bg-white/20 px-3 py-2 rounded-xl text-[10px] font-bold">
+                    <i class="fa-solid fa-location-dot"></i>
+                </a>
             </div>
 
             <div class="relative time-line">
@@ -95,13 +84,18 @@
                     <div class="flex gap-4 mb-6 relative z-10" v-if="element.date === activeDate">
                         <div class="w-12 pt-1 flex flex-col items-center">
                             <span class="text-[11px] font-black" :class="element.isConcert ? 'text-[#6D63D6]' : 'text-purple-400'">{{ element.time }}</span>
-                            <span class="text-[8px] font-bold opacity-50">{{ element.tz }}</span>
+                            <span class="text-[8px] font-bold opacity-50 uppercase">{{ element.tz }}</span>
                             <div class="w-2.5 h-2.5 rounded-full bg-white border-[3px] mt-2" :class="element.isConcert ? 'border-[#6D63D6]' : 'border-purple-300'"></div>
                         </div>
                         <div class="flex-1 bg-white p-5 rounded-[28px] border relative shadow-sm" :class="element.isConcert ? 'concert-card' : 'border-purple-50'">
-                            <span v-if="element.isConcert" class="text-[8px] bg-[#E0DEFF] text-[#6D63D6] px-2 py-0.5 rounded-md font-bold absolute -top-2 right-6">CONCERT</span>
-                            <h3 class="font-bold text-sm leading-tight mb-1 text-gray-800">{{ element.name }}</h3>
-                            <p class="text-[10px] text-gray-400 leading-relaxed">{{ element.note }}</p>
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="font-bold text-sm leading-tight text-gray-800 pr-4">{{ element.name }}</h3>
+                                <button @click="openEditPlan(element)" class="text-purple-200"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            </div>
+                            <p class="text-[10px] text-gray-400 leading-relaxed mb-2">{{ element.note }}</p>
+                            <button v-if="element.isConcert && element.name.includes('BTS')" @click="currentTab = 'info'" class="text-[9px] font-black text-[#6D63D6] bg-purple-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-1">
+                                <i class="fa-solid fa-map"></i> 查看場地指南與時間
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -109,56 +103,92 @@
         </div>
 
         <div v-if="currentTab === 'info'" class="space-y-6">
-            <div class="p-6 bg-white rounded-[30px] border border-purple-50 shadow-sm">
-                <h3 class="font-bold text-[#6D63D6] mb-2"><i class="fa-solid fa-bus mr-2"></i>巴士 6007 資訊</h3>
-                <p class="text-[10px] text-gray-400 mb-3">仁川 T2 B1 (27號月台)</p>
-                <div class="flex gap-2 text-[#6D63D6] text-[10px] font-bold">
-                    <span class="bg-purple-50 px-3 py-2 rounded-xl">06:40</span>
-                    <span class="bg-purple-50 px-3 py-2 rounded-xl">07:25</span>
-                    <span class="bg-purple-50 px-3 py-2 rounded-xl">08:10</span>
+            <h2 class="text-xl font-black text-gray-800 px-2">Official Guide</h2>
+            
+            <div class="bg-white p-5 rounded-[30px] border border-purple-50 shadow-sm">
+                <h3 class="font-black text-[#6D63D6] text-sm mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot"></i> Goyang Stadium 場地佈局
+                </h3>
+                <div class="space-y-4">
+                    <div class="border-l-4 border-blue-400 pl-3">
+                        <span class="map-tag tag-north mb-1">NORTH (北側輔助體育場)</span>
+                        <p class="text-[11px] text-gray-600 font-bold">1. SC 手環領取處</p>
+                        <p class="text-[11px] text-gray-600 font-bold">2. 一般手環領取處</p>
+                        <p class="text-[11px] text-gray-600 font-bold">3. ARMY ZONE (阿米專區)</p>
+                    </div>
+                    <div class="border-l-4 border-orange-400 pl-3">
+                        <span class="map-tag tag-south mb-1">SOUTH (南側主要入口)</span>
+                        <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-600 font-bold">
+                            <span>• 票務處 (Tickets)</span>
+                            <span>• 抽到 SC 櫃台</span>
+                            <span>• 專輯預購處</span>
+                            <span>• 阿米棒快速櫃台</span>
+                            <span class="col-span-2">• 贊助商攤位 (攤位 2-5)</span>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-[30px] border border-purple-50 shadow-sm">
+                <h3 class="font-black text-[#6D63D6] text-sm mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clock"></i> 現場營運時間表
+                </h3>
+                <table class="info-table">
+                    <thead>
+                        <tr><th>日程項目</th><th>時間</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>票務 / 手環領取</td><td>11:00 AM ~ 07:30 PM</td></tr>
+                        <tr><td>ARMY ZONE 開放</td><td>11:00 AM ~ 06:00 PM</td></tr>
+                        <tr><td>Sound Check 入場</td><td>02:10 PM</td></tr>
+                        <tr><td>觀眾正式入場</td><td>04:00 PM</td></tr>
+                        <tr class="font-bold text-[#6D63D6]"><td>演出正式開始</td><td>07:00 PM</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-white p-5 rounded-[30px] border border-purple-50 shadow-sm">
+                <h3 class="font-black text-[#6D63D6] text-sm mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check"></i> 入場驗證清單
+                </h3>
+                <ul class="space-y-2 text-[11px] text-gray-600">
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-400"></i> 身分證件原件</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-400"></i> Membership 二維碼</li>
+                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-green-400"></i> 當日演出門票</li>
+                </ul>
             </div>
         </div>
 
         <div v-if="currentTab === 'shopping'" class="space-y-6">
-            <h2 class="text-xl font-black text-gray-800 px-2 flex items-center justify-between">Shopping List</h2>
+            <h2 class="text-xl font-black text-gray-800 px-2">Shopping List</h2>
             <div class="bg-white p-4 rounded-[30px] shadow-sm border border-purple-50 flex items-center gap-3">
-                <label class="cursor-pointer text-purple-400">
-                    <i class="fa-solid fa-camera text-xl"></i>
-                    <input type="file" class="hidden" accept="image/*" @change="handleImageUpload">
-                </label>
-                <input v-model="newItemText" @keyup.enter="addShoppingItem" placeholder="我想買..." class="flex-1 bg-transparent border-none text-sm font-bold focus:ring-0">
+                <label class="cursor-pointer text-purple-400"><i class="fa-solid fa-camera text-xl"></i><input type="file" class="hidden" accept="image/*" @change="handleImageUpload"></label>
+                <input v-model="newItemText" @keyup.enter="addShoppingItem" placeholder="想要買什麼？" class="flex-1 bg-transparent border-none text-sm font-bold focus:ring-0">
                 <button @click="addShoppingItem" class="w-10 h-10 purple-gradient text-white rounded-2xl flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
             </div>
-            <p v-if="tempImageData" class="text-[9px] text-purple-400 font-bold ml-4">📸 圖片已選好，點擊 + 號添加</p>
-            
             <div class="space-y-4">
                 <div v-for="item in shoppingList" :key="item.id" class="flex items-center gap-4 p-4 bg-white rounded-[28px] border border-purple-50 shadow-sm">
-                    <div @click="item.done = !item.done" class="w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer" :class="item.done ? 'bg-purple-400 border-purple-400' : 'border-purple-100'">
-                        <i v-if="item.done" class="fa-solid fa-check text-white text-[10px]"></i>
-                    </div>
-                    <div v-if="item.image" class="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0"><img :src="item.image" class="w-full h-full object-cover"></div>
-                    <div class="flex-1" @click="openShopEdit(item)">
-                        <p class="text-sm font-black" :class="item.done ? 'text-gray-300 line-through' : 'text-gray-700'">{{ item.text }}</p>
-                    </div>
-                    <button @click="deleteShopItem(item.id)" class="text-gray-200"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    <div @click="item.done = !item.done" class="w-6 h-6 rounded-lg border-2 flex items-center justify-center" :class="item.done ? 'bg-purple-400 border-purple-400' : 'border-purple-100'"><i v-if="item.done" class="fa-solid fa-check text-white text-[10px]"></i></div>
+                    <div v-if="item.image" class="w-12 h-12 rounded-xl overflow-hidden"><img :src="item.image" class="w-full h-full object-cover"></div>
+                    <p class="flex-1 text-sm font-black text-gray-700" :class="item.done ? 'line-through opacity-30' : ''">{{ item.text }}</p>
                 </div>
             </div>
         </div>
+    </main>
 
-        <transition name="modal">
-            <div v-if="showShopModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
-                <div class="bg-white w-full max-w-sm rounded-[40px] p-8">
-                    <h2 class="text-xl font-black mb-6">修改名稱</h2>
-                    <input v-model="editingShopItem.text" class="w-full bg-purple-50 border-none rounded-2xl px-4 py-3 text-sm font-bold mb-6">
-                    <div class="flex gap-3">
-                        <button @click="showShopModal = false" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-3xl font-bold">取消</button>
-                        <button @click="saveShopEdit" class="flex-1 py-4 purple-gradient text-white rounded-3xl font-bold">確定</button>
-                    </div>
+    <transition name="modal">
+        <div v-if="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-sm rounded-[40px] p-8">
+                <h2 class="text-xl font-black mb-6 text-gray-800">修改行程</h2>
+                <input v-model="editingPlan.name" class="w-full bg-purple-50 border-none rounded-2xl px-4 py-3 text-sm font-bold mb-4">
+                <textarea v-model="editingPlan.note" class="w-full bg-purple-50 border-none rounded-2xl px-4 py-3 text-sm font-bold mb-6" rows="3"></textarea>
+                <div class="flex gap-3">
+                    <button @click="showEditModal = false" class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-3xl font-bold">取消</button>
+                    <button @click="savePlanEdit" class="flex-1 py-4 purple-gradient text-white rounded-3xl font-bold">儲存</button>
                 </div>
             </div>
-        </transition>
-    </main>
+        </div>
+    </transition>
 </div>
 
 <script>
@@ -170,8 +200,8 @@
             const shoppingList = ref([]);
             const newItemText = ref('');
             const tempImageData = ref(null);
-            const showShopModal = ref(false);
-            const editingShopItem = ref({});
+            const showEditModal = ref(false);
+            const editingPlan = ref({});
 
             const dates = [
                 { weekday: 'SAT', day: '11', date: '2026-04-11' }, { weekday: 'SUN', day: '12', date: '2026-04-12' },
@@ -181,27 +211,25 @@
                 { weekday: 'SUN', day: '19', date: '2026-04-19' }, { weekday: 'MON', day: '20', date: '2026-04-20' }
             ];
 
-            const weatherData = {
-                '2026-04-11': { status: '晴', icon: '☀️', tempRange: '8°/19°', rainProb: '0%', feelsLike: '17°' },
-                '2026-04-12': { status: '多雲', icon: '☁️', tempRange: '10°/20°', rainProb: '10%', feelsLike: '19°' },
-                '2026-04-17': { status: '晴', icon: '☀️', tempRange: '11°/22°', rainProb: '0%', feelsLike: '21°' }
-            };
-
             const hotelData = {
-                '2026-04-11': { name: 'GLAD Yeouido' }, '2026-04-12': { name: 'GLAD Yeouido' },
-                '2026-04-16': { name: '延南洞 Airbnb' }, '2026-04-17': { name: 'Inspire Hotel' }
+                '2026-04-11': { name: 'Glad 汝矣島', map: 'http://google.com/maps?q=Glad+Hotel+Yeouido' },
+                '2026-04-13': { name: '서울 바모斯 호텔', map: 'http://google.com/maps?q=Vamos+Hotel+Seoul' },
+                '2026-04-16': { name: '延南洞 Airbnb', map: 'http://google.com/maps?q=Mapo-gu+Yeonnam-ro+1-gil+14-9' }
             };
 
             const dailyPlans = ref([
-                { id: 1, date: '2026-04-11', name: '香港出發 BX3945', time: '01:25', tz: 'HKT', note: 'T1' },
-                { id: 2, date: '2026-04-11', name: '抵達首爾 (仁川 T2)', time: '06:25', tz: 'KST', note: '領取行李並前往 B1' },
-                { id: 3, date: '2026-04-11', name: 'BTS IN GOYANG (D1)', time: '19:00', tz: 'KST', isConcert: true, note: 'Goyang Stadium' },
-                { id: 4, date: '2026-04-12', name: 'BTS IN GOYANG (D2)', time: '18:00', tz: 'KST', isConcert: true, note: 'Goyang Stadium' },
-                { id: 5, date: '2026-04-17', name: 'DXS [SERENADE] ON STAGE', time: '19:00', tz: 'KST', isConcert: true, note: 'INSPIRE ARENA' },
-                { id: 6, date: '2026-04-18', name: 'DXS [SERENADE] ON STAGE', time: '18:00', tz: 'KST', isConcert: true, note: 'INSPIRE ARENA' },
-                { id: 7, date: '2026-04-19', name: 'DXS [SERENADE] ON STAGE', time: '17:00', tz: 'KST', isConcert: true, note: 'INSPIRE ARENA' },
-                { id: 8, date: '2026-04-20', name: 'Check out / 準備回程', time: '10:00', tz: 'KST', note: '自由活動' }
+                { id: 1, date: '2026-04-11', name: 'BTS IN GOYANG (D1)', time: '19:00', tz: 'KST', isConcert: true, note: 'Goyang Stadium' },
+                { id: 2, date: '2026-04-12', name: 'BTS IN GOYANG (D2)', time: '18:00', tz: 'KST', isConcert: true, note: 'Goyang Stadium' },
+                { id: 3, date: '2026-04-17', name: 'DXS [SERENADE] ON STAGE', time: '19:00', tz: 'KST', isConcert: true, note: 'INSPIRE ARENA' }
             ]);
+
+            const openEditPlan = (p) => { editingPlan.value = { ...p }; showEditModal.value = true; };
+            const savePlanEdit = () => {
+                const idx = dailyPlans.value.findIndex(p => p.id === editingPlan.value.id);
+                if (idx !== -1) dailyPlans.value[idx] = editingPlan.value;
+                showEditModal.value = false;
+                localStorage.setItem('tracy_plans_v5', JSON.stringify(dailyPlans.value));
+            };
 
             const handleImageUpload = (e) => {
                 const file = e.target.files[0];
@@ -211,27 +239,26 @@
                     reader.readAsDataURL(file);
                 }
             };
-
             const addShoppingItem = () => {
                 if (newItemText.value || tempImageData.value) {
-                    shoppingList.value.unshift({ id: Date.now(), text: newItemText.value || '未命名項目', done: false, image: tempImageData.value });
+                    shoppingList.value.unshift({ id: Date.now(), text: newItemText.value || '未命名', done: false, image: tempImageData.value });
                     newItemText.value = ''; tempImageData.value = null;
                 }
             };
 
-            const openShopEdit = (item) => { editingShopItem.value = { ...item }; showShopModal.value = true; };
-            const saveShopEdit = () => { 
-                const idx = shoppingList.value.findIndex(i => i.id === editingShopItem.value.id);
-                if (idx !== -1) shoppingList.value[idx] = editingShopItem.value;
-                showShopModal.value = false;
+            watch(shoppingList, (val) => { localStorage.setItem('tracy_shop_v5', JSON.stringify(val)); }, { deep: true });
+            onMounted(() => {
+                const sShop = localStorage.getItem('tracy_shop_v5');
+                if (sShop) shoppingList.value = JSON.parse(sShop);
+                const sPlans = localStorage.getItem('tracy_plans_v5');
+                if (sPlans) dailyPlans.value = JSON.parse(sPlans);
+            });
+
+            return { 
+                currentTab, activeDate, dates, hotelData, dailyPlans, shoppingList, newItemText, 
+                showEditModal, editingPlan, openEditPlan, savePlanEdit, handleImageUpload, addShoppingItem,
+                tabs: [{ id: 'schedule', name: '行程', icon: 'fa-solid fa-calendar-day' }, { id: 'info', name: '資訊', icon: 'fa-solid fa-circle-info' }, { id: 'shopping', name: '清單', icon: 'fa-solid fa-basket-shopping' }]
             };
-            const deleteShopItem = (id) => { shoppingList.value = shoppingList.value.filter(i => i.id !== id); };
-            const openWeather = () => { setTimeout(() => { if (!document.hidden) window.open('https://weather.com', '_blank'); }, 2000); };
-
-            watch(shoppingList, (val) => { localStorage.setItem('tracy_shopping_final', JSON.stringify(val)); }, { deep: true });
-            onMounted(() => { const saved = localStorage.getItem('tracy_shopping_final'); if (saved) shoppingList.value = JSON.parse(saved); });
-
-            return { currentTab, activeDate, dates, weatherData, hotelData, dailyPlans, shoppingList, newItemText, tempImageData, showShopModal, editingShopItem, handleImageUpload, addShoppingItem, openShopEdit, saveShopEdit, deleteShopItem, openWeather, tabs: [{ id: 'schedule', name: '行程', icon: 'fa-solid fa-calendar-day' }, { id: 'info', name: '資訊', icon: 'fa-solid fa-circle-info' }, { id: 'shopping', name: '清單', icon: 'fa-solid fa-basket-shopping' }]};
         }
     }).mount('#app');
 </script>
