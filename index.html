@@ -14,25 +14,24 @@
         
         header { background: #E0DEFF; height: 220px; overflow: hidden; position: relative; }
         header img { width: 100%; height: 100%; object-fit: cover; }
-        .weather-bar { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.8); backdrop-filter: blur(5px); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .weather-bar { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.85); backdrop-filter: blur(5px); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; z-index: 20; }
 
         .content-area { border-radius: 35px 35px 0 0; margin-top: -30px; background: white; min-height: 80vh; padding: 25px; position: relative; z-index: 10; }
         .nav-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 25px; display: flex; width: 85%; max-width: 400px; padding: 12px; justify-content: space-around; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100; }
         .tab-btn { color: #D1C4E9; text-align: center; font-size: 10px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { color: var(--main-purple); }
 
-        /* Timeline & Cards */
-        .timeline-item { display: flex; gap: 15px; margin-bottom: 20px; }
-        .timeline-time { width: 45px; font-size: 13px; font-weight: bold; color: var(--main-purple); text-align: right; flex-shrink: 0; }
+        .timeline-item { display: flex; gap: 15px; margin-bottom: 18px; }
+        .timeline-time { width: 45px; font-size: 13px; font-weight: bold; color: var(--main-purple); text-align: right; flex-shrink: 0; padding-top: 2px; }
         .timeline-content { flex-grow: 1; background: #FAF9FF; border-radius: 15px; padding: 12px; border: 1px solid #F0EEFF; }
+        
         .hotel-tag { background: #FFF4E5; border: 1px solid #FFE0B2; border-radius: 15px; padding: 12px; margin-bottom: 15px; }
-        .map-link { color: #9D94FF; font-size: 11px; text-decoration: underline; font-weight: bold; }
+        .map-link { color: #9D94FF; font-size: 11px; text-decoration: underline; font-weight: bold; display: block; margin-top: 4px; }
         
         .date-btn { flex-shrink: 0; width: 50px; height: 65px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F8F7FF; color: #D1C4E9; cursor: pointer; }
         .date-btn.active { background: var(--main-purple); color: white; }
         .hidden { display: none; }
 
-        /* Combined Info Card */
         .combined-card { background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
         .info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #E9D5FF; font-size: 12px; }
     </style>
@@ -41,10 +40,7 @@
 
 <header>
     <img src="header.png" alt="Banner">
-    <div class="weather-bar" id="weather-info">
-        <i class="fa-solid fa-cloud-sun text-yellow-500"></i>
-        <span>18°C</span>
-    </div>
+    <div class="weather-bar" id="weather-info"><i class="fa-solid fa-cloud-sun text-yellow-500"></i><span>18°C</span></div>
 </header>
 
 <div class="nav-bar">
@@ -59,6 +55,9 @@
             <div onclick="filterDate('0411')" id="d0411" class="date-btn active"><span>11</span><small>SAT</small></div>
             <div onclick="filterDate('0412')" id="d0412" class="date-btn"><span>12</span><small>SUN</small></div>
             <div onclick="filterDate('0413')" id="d0413" class="date-btn"><span>13</span><small>MON</small></div>
+            <div onclick="filterDate('0414')" id="d0414" class="date-btn"><span>14</span><small>TUE</small></div>
+            <div onclick="filterDate('0415')" id="d0415" class="date-btn"><span>15</span><small>WED</small></div>
+            <div onclick="filterDate('0416')" id="d0416" class="date-btn"><span>16</span><small>THU</small></div>
             <div onclick="filterDate('0417')" id="d0417" class="date-btn"><span>17</span><small>FRI</small></div>
             <div onclick="filterDate('0418')" id="d0418" class="date-btn"><span>18</span><small>SAT</small></div>
             <div onclick="filterDate('0419')" id="d0419" class="date-btn"><span>19</span><small>SUN</small></div>
@@ -66,14 +65,30 @@
         </div>
 
         <div id="date-0411" class="date-content">
-            <div class="hotel-tag">
-                <p class="font-bold text-sm">Glad Yeouido (汝矣島)</p>
-                <a href="https://www.google.com/maps/search/Glad+Yeouido" target="_blank" class="map-link">Google Maps</a>
-            </div>
-            <div class="timeline-item"><div class="timeline-time">01:25</div><div class="timeline-content"><p class="text-sm">HKG 出發</p></div></div>
-            <div class="timeline-item"><div class="timeline-time">06:25</div><div class="timeline-content"><p class="font-bold text-sm">抵達仁川 T2</p></div></div>
-            <div class="timeline-item"><div class="timeline-time">07:25</div><div class="timeline-content"><p class="text-sm">6007 巴士前往汝矣島</p></div></div>
+            <div class="hotel-tag"><p class="font-bold text-sm">Glad Yeouido</p><a href="https://www.google.com/maps/search/Glad+Yeouido" target="_blank" class="map-link">Google Maps 導航</a></div>
+            <div class="timeline-item"><div class="timeline-time">06:25</div><div class="timeline-content"><p class="font-bold text-sm text-blue-500">抵達仁川 T2</p></div></div>
             <div class="timeline-item"><div class="timeline-time">19:00</div><div class="timeline-content" style="border-left: 4px solid var(--main-purple);"><p class="font-bold text-sm">BTS [ARIRANG] 開演</p></div></div>
+        </div>
+
+        <div id="date-0413" class="date-content hidden">
+            <div class="hotel-tag"><p class="font-bold text-sm">Vamos Hotel</p><a href="https://www.google.com/maps/search/Vamos+Hotel+Seoul" target="_blank" class="map-link">Google Maps 導航</a></div>
+            <div class="timeline-item"><div class="timeline-time">14:00</div><div class="timeline-content"><p class="text-sm">入住 Vamos Hotel</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">14:30</div><div class="timeline-content"><p class="text-sm">理髮預約</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">15:30</div><div class="timeline-content"><p class="text-sm">弘大 LOOF 購物</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">19:00</div><div class="timeline-content"><p class="text-sm">清溪川點燈</p></div></div>
+        </div>
+
+        <div id="date-0415" class="date-content hidden">
+            <div class="hotel-tag"><p class="font-bold text-sm">Vamos Hotel</p></div>
+            <div class="timeline-item"><div class="timeline-time">AM</div><div class="timeline-content"><p class="text-sm">奉恩寺 / 石村湖櫻花</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">PM</div><div class="timeline-content"><p class="text-sm">Muziktiger 四葉草老虎 (Lotte Mall 4F)</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">PM</div><div class="timeline-content"><p class="text-sm">聖水洞潮流區</p></div></div>
+        </div>
+
+        <div id="date-0419" class="date-content hidden">
+            <div class="hotel-tag"><p class="font-bold text-sm">延南洞 Airbnb</p></div>
+            <div class="timeline-item"><div class="timeline-time">ALL</div><div class="timeline-content" style="background:#FFF5F5; border-color:#FED7D7"><p class="font-bold text-sm text-red-500">⚠️ 大雨預報 (攜帶雨具)</p></div></div>
+            <div class="timeline-item"><div class="timeline-time">17:00</div><div class="timeline-content" style="border-left: 4px solid var(--main-purple);"><p class="font-bold text-sm">DXS 演唱會尾場</p></div></div>
         </div>
         
         <div id="date-0420" class="date-content hidden">
@@ -83,34 +98,23 @@
 
     <div id="tab-info" class="hidden">
         <h2 class="text-xl font-bold mb-4">Essential Info</h2>
-        
         <div class="combined-card">
-            <p class="font-bold text-purple-700 mb-3"><i class="fa-solid fa-star mr-2"></i>BTS 現場營運詳情 (4.11-12)</p>
+            <p class="font-bold text-purple-700 mb-3"><i class="fa-solid fa-star mr-2"></i>BTS 營運詳情 (4.11-12)</p>
             <div class="info-row"><span>Army Zone 營運</span><span class="font-bold">11:00 - 18:00</span></div>
             <div class="info-row"><span>票務處/服務台</span><span class="font-bold">11:00 - 19:30</span></div>
             <div class="info-row"><span>Sound Check 入場</span><span class="font-bold">14:10</span></div>
-            <div class="info-row"><span>Sound Check 開始</span><span class="font-bold">15:40</span></div>
-            <div class="info-row"><span>一般觀眾入場</span><span class="font-bold">16:00</span></div>
             <div class="info-row" style="border:none"><span>演出開始</span><span class="font-bold text-purple-600">19:00</span></div>
-            
             <div class="mt-4 p-3 bg-white rounded-xl text-[11px] text-gray-500">
-                📍 地點：高陽主體育場旁補助競技場<br>
-                🗄️ 必備：當日門票、護照原件、Weverse 會員碼
-            </div>
-        </div>
-
-        <div class="combined-card" style="background: #F0F7FF; border-color: #CFE2FF;">
-            <p class="font-bold text-blue-700 mb-2"><i class="fa-solid fa-bus mr-2"></i>6007 機場巴士</p>
-            <div class="text-xs space-y-1">
-                <p>位置：T2 B1層 27號月台</p>
-                <p>班次：06:40 / 07:25 / 08:10</p>
+                📍 高陽主體育場旁補助競技場<br>
+                🗄️ 護照、當日門票、Weverse 會員碼
             </div>
         </div>
     </div>
-
+    
     <div id="tab-shop" class="hidden">
         <h2 class="text-xl font-bold mb-4">Shopping List</h2>
-        <div class="card flex justify-between p-4 bg-white rounded-2xl border border-purple-50"><span>Tamburins</span><i class="fa-solid fa-check text-purple-200"></i></div>
+        <div class="combined-card bg-white"><p class="text-sm">LOOF (弘大店): 11:00 - 23:00</p></div>
+        <div class="combined-card bg-white"><p class="text-sm">Yogur Brick: 10:00 - 21:30</p></div>
     </div>
 </main>
 
@@ -129,7 +133,6 @@
         const target = document.getElementById('date-' + d);
         if(target) target.classList.remove('hidden');
         document.getElementById('d' + d).classList.add('active');
-        
         const weather = document.getElementById('weather-info');
         if (d === '0419') {
             weather.innerHTML = '<i class="fa-solid fa-cloud-showers-heavy text-blue-500"></i><span>14°C</span>';
