@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seoul Trip 2026 - Ultimate Track</title>
+    <title>Seoul Trip 2026 - Master Itinerary</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -12,7 +12,6 @@
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-soft); color: #4A4A4A; margin: 0; padding-bottom: 120px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Banner Area */
         header { background: #E0DEFF; height: 180px; overflow: hidden; position: relative; }
         header img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); }
         .header-text { position: absolute; bottom: 45px; left: 25px; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
@@ -25,7 +24,7 @@
         .tab-btn.active { color: var(--main-purple); transform: scale(1.1); }
         .fab { position: fixed; bottom: 100px; right: 25px; width: 55px; height: 55px; background: var(--main-purple); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 5px 15px rgba(157, 148, 255, 0.4); z-index: 99; cursor: pointer; border: none; }
 
-        /* Weather & Cards */
+        /* Weather & Timeline */
         .weather-card { background: #F0F9FF; border: 1px solid #E0F2FE; border-radius: 15px; padding: 12px; margin-bottom: 15px; font-size: 11px; }
         .weather-rain { background: #FFF1F2; border-color: #FECACA; color: #BE123C; }
         
@@ -67,82 +66,50 @@
             <div onclick="filterDate('0411')" id="d0411" class="date-btn active"><span>11</span><small>SAT</small></div>
             <div onclick="filterDate('0412')" id="d0412" class="date-btn"><span>12</span><small>SUN</small></div>
             <div onclick="filterDate('0413')" id="d0413" class="date-btn"><span>13</span><small>MON</small></div>
+            <div onclick="filterDate('0414')" id="d0414" class="date-btn"><span>14</span><small>TUE</small></div>
             <div onclick="filterDate('0415')" id="d0415" class="date-btn"><span>15</span><small>WED</small></div>
+            <div onclick="filterDate('0416')" id="d0416" class="date-btn"><span>16</span><small>THU</small></div>
             <div onclick="filterDate('0417')" id="d0417" class="date-btn"><span>17</span><small>FRI</small></div>
+            <div onclick="filterDate('0418')" id="d0418" class="date-btn"><span>18</span><small>SAT</small></div>
             <div onclick="filterDate('0419')" id="d0419" class="date-btn"><span>19</span><small>SUN</small></div>
             <div onclick="filterDate('0420')" id="d0420" class="date-btn"><span>20</span><small>MON</small></div>
         </div>
 
         <div id="date-0411" class="date-content">
-            <div class="weather-card">
-                <div class="flex justify-between font-bold"><span>☀️ 氣溫：8°C - 19°C</span><span class="text-blue-600">體感：4°C</span></div>
-                <p class="mt-1 opacity-70">早晚溫差極大，建議洋蔥式穿法。</p>
-            </div>
-            <div class="hotel-tag">
-                <p class="font-bold text-sm text-orange-600">🏠 住宿：Glad Yeouido</p>
-                <a href="https://www.google.com/maps/search/Glad+Yeouido" target="_blank" class="map-link">Google Maps 導航</a>
-            </div>
+            <div class="weather-card"><div class="flex justify-between font-bold"><span>☀️ 8°C - 19°C</span><span class="text-blue-600">體感 4°C</span></div></div>
+            <div class="hotel-tag"><p class="font-bold text-sm text-orange-600">🏠 Glad Yeouido</p></div>
             <div id="list-0411">
-                <div class="timeline-item"><div class="timeline-time">06:25</div><div class="timeline-content"><p class="font-bold text-blue-500">抵達仁川 T2</p></div></div>
-                <div class="timeline-item">
-                    <div class="timeline-time">19:00</div>
-                    <div class="timeline-content" style="border-left: 4px solid var(--main-purple);">
-                        <p class="font-bold text-purple-600">BTS [ARIRANG] 開演</p>
-                        <a href="https://www.google.com/maps/search/Goyang+Stadium" target="_blank" class="map-link">高陽體育場導航</a>
-                    </div>
-                </div>
+                <div class="timeline-item"><div class="timeline-time">06:25</div><div class="timeline-content"><p class="font-bold">抵達仁川 T2</p></div></div>
+                <div class="timeline-item"><div class="timeline-time">19:00</div><div class="timeline-content"><p class="font-bold text-purple-600">BTS [ARIRANG]</p></div></div>
             </div>
         </div>
+
+        <div id="date-0412" class="date-content hidden"><div class="weather-card">☀️ 18°C</div><div class="hotel-tag">🏠 Glad Yeouido</div><div id="list-0412"></div></div>
+        <div id="date-0413" class="date-content hidden"><div class="weather-card">🌤️ 17°C</div><div class="hotel-tag">🏠 Vamos Hotel</div><div id="list-0413"></div></div>
+        <div id="date-0414" class="date-content hidden"><div class="weather-card">☀️ 18°C</div><div class="hotel-tag">🏠 Vamos Hotel</div><div id="list-0414"></div></div>
+        <div id="date-0415" class="date-content hidden"><div class="weather-card">☀️ 20°C</div><div class="hotel-tag">🏠 Vamos Hotel</div><div id="list-0415"></div></div>
+        <div id="date-0416" class="date-content hidden"><div class="weather-card">☁️ 17°C</div><div class="hotel-tag">🏠 延南洞 Airbnb</div><div id="list-0416"></div></div>
+        <div id="date-0417" class="date-content hidden"><div class="weather-card">🌤️ 18°C</div><div class="hotel-tag">🏠 延南洞 Airbnb</div><div id="list-0417"><div class="timeline-item"><div class="timeline-time">19:00</div><div class="timeline-content"><p class="font-bold text-purple-600">DxS D1</p></div></div></div></div>
+        <div id="date-0418" class="date-content hidden"><div class="weather-card">☀️ 19°C</div><div class="hotel-tag">🏠 延南洞 Airbnb</div><div id="list-0418"></div></div>
 
         <div id="date-0419" class="date-content hidden">
-            <div class="weather-card weather-rain">
-                <div class="flex justify-between font-bold"><span>🌧️ 氣溫：12°C - 14°C</span><span>體感：9°C</span></div>
-                <p class="mt-1">大雨預報，濕冷體感強，請務必攜帶雨具。</p>
-            </div>
-            <div class="hotel-tag"><p class="font-bold text-sm text-orange-600">🏠 住宿：延南洞 Airbnb</p></div>
-            <div id="list-0419">
-                <div class="timeline-item">
-                    <div class="timeline-time">17:00</div>
-                    <div class="timeline-content" style="border-left: 4px solid var(--main-purple);">
-                        <p class="font-bold text-purple-600">DXS 尾場 (Inspire Arena)</p>
-                        <a href="https://www.google.com/maps/search/Inspire+Arena" target="_blank" class="map-link">場館導航</a>
-                    </div>
-                </div>
-            </div>
+            <div class="weather-card weather-rain"><div class="flex justify-between font-bold"><span>🌧️ 14°C</span><span>體感 9°C</span></div></div>
+            <div class="hotel-tag"><p class="font-bold text-sm text-orange-600">🏠 延南洞 Airbnb</p></div>
+            <div id="list-0419"><div class="timeline-item"><div class="timeline-time">17:00</div><div class="timeline-content"><p class="font-bold text-purple-600">DxS 尾場</p></div></div></div>
         </div>
 
-        <div id="date-0412" class="date-content hidden"><div class="weather-card">☀️ 18°C</div><div class="hotel-tag">Glad Yeouido</div><div id="list-0412"></div></div>
-        <div id="date-0413" class="date-content hidden"><div class="weather-card">🌤️ 17°C</div><div class="hotel-tag">Vamos Hotel</div><div id="list-0413"></div></div>
-        <div id="date-0415" class="date-content hidden"><div class="weather-card">☀️ 20°C</div><div class="hotel-tag">Vamos Hotel</div><div id="list-0415"></div></div>
-        <div id="date-0417" class="date-content hidden"><div class="weather-card">🌤️ 18°C</div><div class="hotel-tag">延南洞 Airbnb</div><div id="list-0417"></div></div>
-        <div id="date-0420" class="date-content hidden"><div class="weather-card">☁️ 16°C</div><div id="list-0420"><div class="timeline-item"><div class="timeline-time">21:30</div><div class="timeline-content">回程航班 BX3935</div></div></div></div>
-    </div>
-
-    <div id="tab-info" class="hidden">
-        <h2 class="text-xl font-bold mb-4">Essential Info</h2>
-        <div id="info-list">
-            <div class="combined-card">
-                <p class="font-bold text-purple-700 mb-2"><i class="fa-solid fa-star mr-2"></i>BTS 營運詳情 (24H)</p>
-                <div class="flex justify-between py-1 border-b border-dashed border-purple-200 text-xs"><span>Army Zone</span><span class="font-bold">11:00 - 18:00</span></div>
-                <div class="flex justify-between py-1 border-b border-dashed border-purple-200 text-xs"><span>票務處</span><span class="font-bold">11:00 - 19:30</span></div>
-                <div class="flex justify-between py-1 text-xs"><span>Sound Check</span><span class="font-bold">14:10</span></div>
-            </div>
-            <div class="combined-card" style="background: #F0F9FF; border-color: #BAE6FD;">
-                <p class="font-bold text-blue-700 mb-2">穿衣體感指南</p>
-                <p class="text-[10px] leading-relaxed">首爾 4 月早晚溫差可達 10 度以上。高陽與仁川 Inspire Arena 位於空曠處與海邊，海風刺骨，體感會比氣溫低 3-5 度，防風外套必備。</p>
+        <div id="date-0420" class="date-content hidden">
+            <div class="weather-card">☁️ 16°C</div>
+            <div class="hotel-tag"><p class="font-bold text-sm text-orange-600">🏠 Checkout: 延南洞</p></div>
+            <div id="list-0420">
+                <div class="timeline-item"><div class="timeline-time">11:00</div><div class="timeline-content"><p>飯店退房 / 最後採買</p></div></div>
+                <div class="timeline-item"><div class="timeline-time">21:30</div><div class="timeline-content"><p class="font-bold">回程航班 BX3935</p></div></div>
             </div>
         </div>
     </div>
 
-    <div id="tab-shop" class="hidden">
-        <h2 class="text-xl font-bold mb-4">Shopping List</h2>
-        <div id="shop-list">
-            <div class="flex justify-between p-4 bg-white rounded-xl border mb-3 shadow-sm">
-                <div><p class="font-bold">Tamburins</p><p class="text-[10px] text-gray-400">香氛/護手霜</p></div>
-                <i class="fa-solid fa-circle-check text-gray-100 text-2xl"></i>
-            </div>
-        </div>
-    </div>
+    <div id="tab-info" class="hidden"><h2 class="text-xl font-bold mb-4">Essential Info</h2><div id="info-list"></div></div>
+    <div id="tab-shop" class="hidden"><h2 class="text-xl font-bold mb-4">Shopping List</h2><div id="shop-list"></div></div>
 </main>
 
 <script>
@@ -163,42 +130,29 @@
         currentDate = d;
         document.querySelectorAll('.date-content').forEach(el => el.classList.add('hidden'));
         document.querySelectorAll('.date-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('date-' + d).classList.remove('hidden');
+        const target = document.getElementById('date-' + d);
+        if(target) target.classList.remove('hidden');
         document.getElementById('d' + d).classList.add('active');
     }
 
     function addItem() {
         if (currentTab === 'schedule') {
-            const time = prompt("輸入 24H 時間 (如 15:30):");
+            const time = prompt("輸入時間 (如 14:00):");
             const text = prompt("輸入行程活動:");
             if (time && text) {
                 const container = document.getElementById('list-' + currentDate);
-                container.innerHTML += `
-                    <div class="timeline-item">
-                        <div class="timeline-time">${time}</div>
-                        <div class="timeline-content"><p>${text}</p></div>
-                    </div>`;
+                container.innerHTML += `<div class="timeline-item"><div class="timeline-time">${time}</div><div class="timeline-content"><p>${text}</p></div></div>`;
             }
         } else if (currentTab === 'info') {
-            const title = prompt("輸入資訊標題:");
-            const desc = prompt("輸入詳細內容:");
+            const title = prompt("標題:");
+            const desc = prompt("內容:");
             if (title && desc) {
-                const container = document.getElementById('info-list');
-                container.innerHTML += `
-                    <div class="combined-card">
-                        <p class="font-bold text-purple-700 mb-1">${title}</p>
-                        <p class="text-xs opacity-70">${desc}</p>
-                    </div>`;
+                document.getElementById('info-list').innerHTML += `<div class="combined-card"><p class="font-bold text-purple-700">${title}</p><p class="text-xs">${desc}</p></div>`;
             }
         } else if (currentTab === 'shop') {
-            const item = prompt("輸入欲購物品:");
+            const item = prompt("欲購物品:");
             if (item) {
-                const container = document.getElementById('shop-list');
-                container.innerHTML += `
-                    <div class="flex justify-between p-4 bg-white rounded-xl border mb-3 shadow-sm">
-                        <div><p class="font-bold">${item}</p></div>
-                        <i class="fa-solid fa-circle-check text-gray-100 text-2xl" onclick="this.classList.toggle('text-green-400')"></i>
-                    </div>`;
+                document.getElementById('shop-list').innerHTML += `<div class="flex justify-between p-4 bg-white rounded-xl border mb-3"><span>${item}</span><i class="fa-solid fa-circle-check text-gray-100" onclick="this.classList.toggle('text-green-400')"></i></div>`;
             }
         }
     }
